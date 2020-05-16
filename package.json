@@ -1,0 +1,42 @@
+{
+  "name": "read-dicekeys",
+  "version": "0.0.1",
+  "description": "DiceKeys image scanner",
+  "main": "test",
+  "ignore-type": "module",
+  "test": "jest",
+  "scripts": {
+    "start-web": "node dist/web.js",
+    "start": "npm run build:live",
+    "build": "tsc -p .",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dicekeys/read-dicekeys-js.git"
+  },
+  "author": "Stuart Schechter",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/dicekeys/read-dicekeys-js/issues"
+  },
+  "homepage": "https://github.com/dicekeys/read-dicekeys-js#readme",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/jest": "^25.2.2",
+    "@types/node": "^14.0.1",
+    "core-js": "^3.6.5",
+    "express": "^4.17.1",
+    "jest": "^26.0.1",
+    "jimp": "^0.11.0",
+    "nodemon": "^2.0.3",
+    "parcel": "^2.0.0-alpha.3.2",
+    "parcel-bundler": "^1.12.4",
+    "ts-jest": "^26.0.0",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.10.0",
+    "typescript": "^3.9.2"
+  }
+}
