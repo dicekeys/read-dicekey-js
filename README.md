@@ -8,5 +8,7 @@ setenv emsdk <path_to_emsdk>
 ```
 
 ```bash
-cmake -G Ninja -D CMAKE_TOOLCHAIN_FILE=C:\Users\stuar\git\emsdk\upstream\emscripten\cmake\Modules\Platform\Emscripten.cmake  -S src -B build
+cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:\Users\stuar\git\emsdk\upstream\emscripten\cmake\Modules\Platform\Emscripten.cmake -S cpp -B build
+cd build; ninja; cd ..
+
 ```
