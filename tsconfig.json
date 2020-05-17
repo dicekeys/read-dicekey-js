@@ -7,7 +7,10 @@
       "noImplicitAny": true,
       "moduleResolution": "node",
       "rootDirs": ["src"],
-      "typeRoots": ["./node_modules/@types", "./custom_typings"],
+      "baseUrl": ".",
+      "paths": {
+        "*" : ["./node_modules/@types", "src/@types/*", "src"]
+      },
       "sourceMap": true,
       "outDir": "dist"
     },

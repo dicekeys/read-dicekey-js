@@ -12,3 +12,7 @@ cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:\Users\stuar\git\emsdk\upstream\emscript
 cd build; ninja; cd ..
 
 ```
+
+Still need to manually compile OpenCV
+Still need to copy read-dicekey-js.[js|wasm] from build/bin to src
+

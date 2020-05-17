@@ -9,7 +9,7 @@ EMSCRIPTEN_BINDINGS(DiceKeyImageProcessor) {
   class_<DiceKeyImageProcessor>("DiceKeyImageProcessor")
     .constructor()
     .function("processJsImageData", &DiceKeyImageProcessor::processJsImageData)
-//    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay)
+    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay, allow_raw_pointers())
     .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
     .function("isFinished", &DiceKeyImageProcessor::isFinished)
     ;

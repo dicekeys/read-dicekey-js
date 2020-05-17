@@ -1,3 +1,5 @@
+/// <reference types="emscripten" />
+
 declare module "read-dicekey-js" {
 
     export class DiceKeyImageProcessor {
@@ -5,6 +7,7 @@ declare module "read-dicekey-js" {
         //   .function("processJsImageData", &DiceKeyImageProcessor::processJsImageData)
         processJsImageData: (width: number, height: number, data: Uint8ClampedArray | Buffer) => Boolean;
         //    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay)
+        renderAugmentationOverlay: (width: number, height: number, data: Uint8Array) => Boolean;
         // .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
         diceKeyReadJson: () => String;
         // .function("isFinished", &DiceKeyImageProcessor::isFinished)  }
@@ -13,7 +16,7 @@ declare module "read-dicekey-js" {
         delete: () => void;
     }
 
-    export interface DiceKeyImageProcessorModule {
+    export interface DiceKeyImageProcessorModule extends EmscriptenModule {
         DiceKeyImageProcessor: new () => DiceKeyImageProcessor;
     }
 
