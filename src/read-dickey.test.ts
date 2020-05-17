@@ -1,4 +1,4 @@
-import {DiceKeyImageProcessorModulePromise} from "./dice-key-image-processor"
+import {DiceKeyImageProcessorModulePromise} from "./dicekey-image-processor"
 import Jimp from "jimp"
 
 test("Got jest?", () => {

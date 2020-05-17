@@ -16,6 +16,7 @@ type HasPtr<PTR_TYPE extends number> = {byteOffset: PTR_TYPE}
  * A Uint8Array where the byteOffset field is of type PTR_TYPE.
  * This is used to ensure that the byteOffset of an array that was not allocated
  * for your module is not passed as a pointer into your module.
+ * 
  */
 type Uint8ArrayWithPtrType<PTR_TYPE extends number> = Uint8Array & HasPtr<PTR_TYPE>
 

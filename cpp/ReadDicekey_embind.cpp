@@ -18,6 +18,9 @@ public:
 		);
 	}
 
+	inline std::string diceKeyReadJson() { return DiceKeyImageProcessor::jsonKeySqrRead(); }
+	inline bool isFinished() { return DiceKeyImageProcessor::isFinished(); }
+
 	inline void renderAugmentationOverlayJs(	
 		int width,
 		int height,
@@ -34,7 +37,7 @@ EMSCRIPTEN_BINDINGS(DiceKeyImageProcessorJs) {
     .constructor()
     .function("processJsImageData", &DiceKeyImageProcessorJs::processJsImageData)
     .function("renderAugmentationOverlayJs", &DiceKeyImageProcessorJs::renderAugmentationOverlayJs, allow_raw_pointers())
-    .function("diceKeyReadJson", &DiceKeyImageProcessorJs::jsonKeySqrRead)
+    .function("diceKeyReadJson", &DiceKeyImageProcessorJs::diceKeyReadJson)
     .function("isFinished", &DiceKeyImageProcessorJs::isFinished)
     ;
 }
