@@ -11,5 +11,6 @@
     },
     "moduleDirectories": ["node_modules", "src"],
     "collectCoverage": true,
+    "coveragePathIgnorePatterns": ["/node_modules/", "/src/read-dicekey-js.*"],
     "testEnvironment": "jest-environment-node"
   }

@@ -7,9 +7,11 @@ set( CMAKE_CXX_STANDARD 11 )
 # Export name
 # -s EXPORT_NAME='Module'
 # This sounds interesting: var EMIT_EMSCRIPTEN_METADATA = 0; and STANDALONE_WASM, see also https://v8.dev/blog/emscripten-standalone-wasm
+# -g, emit white space in javascript (let someone else minimize it)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z --bind \
     -s MODULARIZE=1 \
     -s ASSERTIONS=2 \
+    -g4 \
     --memory-init-file 0 -O3 \
 ")
 

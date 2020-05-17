@@ -2,12 +2,16 @@
 
 declare module "read-dicekey-js" {
 
+    export enum MemoryAllocatedInDiceKeyImageProcessorModule {}
+    export type PtrAllocatedInDiceKeyImageProcessorModule = number & MemoryAllocatedInDiceKeyImageProcessorModule;
+    export type HasPtrAllocatedInDiceKeyImageProcessorModule = {byteOffset: PtrAllocatedInDiceKeyImageProcessorModule}
+
     export class DiceKeyImageProcessor {
         constructor();
         //   .function("processJsImageData", &DiceKeyImageProcessor::processJsImageData)
-        processJsImageData: (width: number, height: number, data: Uint8ClampedArray | Buffer) => Boolean;
+        processJsImageData: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => Boolean;
         //    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay)
-        renderAugmentationOverlay: (width: number, height: number, data: Uint8Array) => Boolean;
+        renderAugmentationOverlayJs: (width: number, height: number, data: PtrAllocatedInDiceKeyImageProcessorModule) => Boolean;
         // .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
         diceKeyReadJson: () => String;
         // .function("isFinished", &DiceKeyImageProcessor::isFinished)  }
@@ -20,7 +24,6 @@ declare module "read-dicekey-js" {
         DiceKeyImageProcessor: new () => DiceKeyImageProcessor;
     }
 
-    // IF ES6, then use
     interface DiceKeyImageProcessorModulePromise {
         then: (fn: (DiceKeyImageProcessor: DiceKeyImageProcessorModule) => any) => void
     }
