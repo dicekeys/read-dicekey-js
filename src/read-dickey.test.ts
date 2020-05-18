@@ -25,6 +25,7 @@ test('Augment dice image', async () => {
     const result = diceKeyImageProcessor.processJsImageData(bitmap.width, bitmap.height, bitmap.data);
     const beforeMs = (new Date()).getTime();
     mod.usingByteArray(bitmap.width * bitmap.height * 4, (bitMapBuffer) => {
+        
         diceKeyImageProcessor.renderAugmentationOverlayJs(bitmap.width, bitmap.height, bitMapBuffer.byteOffset);
         bitmap.data.set(bitMapBuffer);
     });

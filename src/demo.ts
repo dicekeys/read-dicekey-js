@@ -102,7 +102,7 @@ class ImageProcessingTestPage {
             this.overlayCanvasCtx.putImageData(overlayImageData, 0, 0);
         });
     
-        if (true || !this.diceKeyImageProcessor.isFinished()) {
+        if (!this.diceKeyImageProcessor.isFinished()) {
             setTimeout(this.processFrame, 10)
         }
     
