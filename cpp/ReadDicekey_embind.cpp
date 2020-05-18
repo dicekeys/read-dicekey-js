@@ -3,17 +3,34 @@
 
 using namespace emscripten;
 
+template<typename T>
+std::vector<T> vectorFromJsTypedNumericArray(const val &typedArray)
+{
+  const unsigned int length = typedArray["length"].as<unsigned int>();
+  const unsigned int bytesPerElement = typedArray["BYTES_PER_ELEMENT"].as<unsigned int>();
+  const unsigned int lengthInBytes = bytesPerElement * length;
+  const val heap = val::module_property("HEAPU8");
+  const val memory = heap["buffer"];
+  std::vector<T> vec(lengthInBytes / sizeof(T));
+  const val memoryView = typedArray["constructor"].new_(memory, reinterpret_cast<uintptr_t>(vec.data()), lengthInBytes);
+  memoryView.call<void>("set", typedArray);
+  return vec;
+}
+
 inline bool processImageData (
 	DiceKeyImageProcessor& thisDiceKeyImageProcessor,
 	int width,
 	int height,
-	const std::string &dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString
+	emscripten::val const &data
+//	const std::vector<unsigned char>& dataAsVector
+//	const std::string &dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString
 ) {
 	return thisDiceKeyImageProcessor.processRGBAImage(
 		width,
 		height,
-		width * 4,
-		(const uint32_t*) dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString.data()
+		vectorFromJsTypedNumericArray<uint32_t>(data).data()
+//		(const uint32_t*)dataAsVector.data()
+//		(const uint32_t*) dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString.data()
 	);
 }
 

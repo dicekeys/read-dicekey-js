@@ -22,7 +22,7 @@ test('Augment dice image', async () => {
     const mod = await DiceKeyImageProcessorModulePromise;
     const diceKeyImageProcessor = new mod.webasmModule.DiceKeyImageProcessor();
     const {bitmap} = image;
-    const result = diceKeyImageProcessor.processImageData(bitmap.width, bitmap.height, bitmap.data);
+    const result = diceKeyImageProcessor.processImageData(bitmap.width, bitmap.height, Uint8ClampedArray.from(bitmap.data));
     const beforeMs = (new Date()).getTime();
     mod.usingByteArray(bitmap.width * bitmap.height * 4, (bitMapBuffer) => {
         
