@@ -3,10 +3,15 @@ import {
   DiceKeyImageProcessorModule,
   PtrAllocatedInDiceKeyImageProcessorModule
 } from "read-dicekey-js";
-import {ModuleWithMemoryHelpers} from "./memory-helpers";
+import {
+  addTsMemoryToModule,
+  TypedMemoryHelpersForEmscriptenModule,
+} from "./typed-webasm-module-memory-helpers";
+
+
 
 export {DiceKeyImageProcessor} from "read-dicekey-js";
-export type DiceKeyImageProcessorModuleWithHelpers = ModuleWithMemoryHelpers<DiceKeyImageProcessorModule, PtrAllocatedInDiceKeyImageProcessorModule>;
+export type DiceKeyImageProcessorModuleWithHelpers = DiceKeyImageProcessorModule & TypedMemoryHelpersForEmscriptenModule<PtrAllocatedInDiceKeyImageProcessorModule>;
 
 export const DiceKeyImageProcessorModulePromise: Promise<DiceKeyImageProcessorModuleWithHelpers> = (
   async () =>
@@ -17,7 +22,7 @@ export const DiceKeyImageProcessorModulePromise: Promise<DiceKeyImageProcessorMo
             // https://github.com/emscripten-core/emscripten/issues/5820
             // to not infinite loop, we need to delete the "then".
             delete (module as unknown as {then: any})['then'];
-            resolveModule(new ModuleWithMemoryHelpers<DiceKeyImageProcessorModule, PtrAllocatedInDiceKeyImageProcessorModule>(module));
+            resolveModule(addTsMemoryToModule(module));
           });
         } catch (e) {
             reject(e);
@@ -25,3 +30,16 @@ export const DiceKeyImageProcessorModulePromise: Promise<DiceKeyImageProcessorMo
       }
     )
   )();
+
+
+// import{ BaseEmscriptenModule } from "./typed-webasm-module-memory-helpers";
+// function neverRunThis_It_exists_purely_to_test_typings() {
+//   const testThisModulesTypes = undefined as DiceKeyImageProcessorModuleWithHelpers;
+//   enum SOME_OTHER_MODULE_PTR { _ = 0 };
+//   const otherModule = undefined as BaseEmscriptenModule;
+//   const augmentedOtherModule = addTsMemoryToModule<EmscriptenModule, SOME_OTHER_MODULE_PTR>(otherModule);
+
+//   augmentedOtherModule.tsMemory.usingByteArray(100, (bufferWithInvaildType) => {
+//     new testThisModulesTypes.DiceKeyImageProcessor().renderAugmentationOverlay(0, 0, bufferWithInvaildType.byteOffset);
+//   });
+// }

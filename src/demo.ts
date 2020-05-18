@@ -23,7 +23,7 @@ class ImageProcessingTestPage {
 
     constructor(module: DiceKeyImageProcessorModuleWithHelpers) {
         this.module = module;
-        this.diceKeyImageProcessor = new module.webasmModule.DiceKeyImageProcessor();
+        this.diceKeyImageProcessor = new module.DiceKeyImageProcessor();
         this.updateCameraForConstraints();
         navigator.mediaDevices.enumerateDevices().then( this.updateMediaDeviceList );
         this.processFrame();
@@ -93,7 +93,7 @@ class ImageProcessingTestPage {
             //console.log("Json", json);
             // console.log("Time in Ms", afterMs - beforeMs);
         }
-        this.module.usingByteArray(capturedImageData.width * capturedImageData.height * 4, (bitMapBuffer) => {
+        this.module.tsMemory.usingByteArray(capturedImageData.width * capturedImageData.height * 4, (bitMapBuffer) => {
             this.overlayCanvas.width = capturedImageData.width;
             this.overlayCanvas.height = capturedImageData.height;
             this.diceKeyImageProcessor.renderAugmentationOverlay(capturedImageData.width, capturedImageData.height, bitMapBuffer.byteOffset);

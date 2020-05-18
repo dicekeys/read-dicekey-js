@@ -2,7 +2,7 @@
 
 declare module "read-dicekey-js" {
 
-    export enum MemoryAllocatedInDiceKeyImageProcessorModule {}
+    export enum MemoryAllocatedInDiceKeyImageProcessorModule { _ = 0 }
     export type PtrAllocatedInDiceKeyImageProcessorModule = number & MemoryAllocatedInDiceKeyImageProcessorModule;
     export type HasPtrAllocatedInDiceKeyImageProcessorModule = {byteOffset: PtrAllocatedInDiceKeyImageProcessorModule}
 
