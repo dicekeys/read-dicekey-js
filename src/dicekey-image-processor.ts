@@ -1,38 +1,30 @@
-import DiceKeyImageProcessorModuleHalfPromiseFn from "read-dicekey-js";
+import DiceKeyImageProcessorModuleNotReallyAPromiseFn from "read-dicekey-js";
 import {
   DiceKeyImageProcessorModule,
   PtrAllocatedInDiceKeyImageProcessorModule
 } from "read-dicekey-js";
 import {
-  addTsMemoryToModule,
+  getWebAsmModulePromiseWithAugmentedTypes,
   TypedMemoryHelpersForEmscriptenModule,
 } from "./typed-webasm-module-memory-helpers";
 
+export {
+  DiceKeyImageProcessor
+} from "read-dicekey-js";
+
+export type DiceKeyImageProcessorModuleWithHelpers = DiceKeyImageProcessorModule &
+  TypedMemoryHelpersForEmscriptenModule<PtrAllocatedInDiceKeyImageProcessorModule>;
+
+/**
+ * Return a promise to a a web assembly module with our TypeScript helpers for allocating
+ * memory within the web assembly memory space.
+ */
+export const DiceKeyImageProcessorModulePromise: Promise<DiceKeyImageProcessorModuleWithHelpers> =
+  getWebAsmModulePromiseWithAugmentedTypes(DiceKeyImageProcessorModuleNotReallyAPromiseFn)
 
 
-export {DiceKeyImageProcessor} from "read-dicekey-js";
-export type DiceKeyImageProcessorModuleWithHelpers = DiceKeyImageProcessorModule & TypedMemoryHelpersForEmscriptenModule<PtrAllocatedInDiceKeyImageProcessorModule>;
 
-export const DiceKeyImageProcessorModulePromise: Promise<DiceKeyImageProcessorModuleWithHelpers> = (
-  async () =>
-    new Promise<DiceKeyImageProcessorModuleWithHelpers>(
-      (resolveModule, reject) => {
-        try {
-          DiceKeyImageProcessorModuleHalfPromiseFn().then( module => {
-            // https://github.com/emscripten-core/emscripten/issues/5820
-            // to not infinite loop, we need to delete the "then".
-            delete (module as unknown as {then: any})['then'];
-            resolveModule(addTsMemoryToModule(module));
-          });
-        } catch (e) {
-            reject(e);
-        }
-      }
-    )
-  )();
-
-
-// import{ BaseEmscriptenModule } from "./typed-webasm-module-memory-helpers";
+// import{ BaseEmscriptenModule, addTsMemoryToModule } from "./typed-webasm-module-memory-helpers";
 // function neverRunThis_It_exists_purely_to_test_typings() {
 //   const testThisModulesTypes = undefined as DiceKeyImageProcessorModuleWithHelpers;
 //   enum SOME_OTHER_MODULE_PTR { _ = 0 };

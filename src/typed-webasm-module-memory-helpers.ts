@@ -115,3 +115,38 @@ export function addTsMemoryToModule<MODULE extends EmscriptenModule, INTRA_MODUL
   return Object.assign( module, { tsMemory: {allocateU8, freeU8, usingByteArray, usingCopyOfArray } });
 };
 
+/**
+ * Take the default export of an Emscriptem module and turn it into a promise for a copy
+ * of the module, augmented with our TypeScript methods for using memory in the webasm module.
+ *
+ * @param functionReturningASadAndBuggyExcuseForAModulePromise That which emscriptem exports in modules
+ * has been given a then function to look like a promise, but treating it like a promise yields an
+ * infinite loop.  Don't worry, just pass that sh*t here and we'll fix it for you.
+ * (For more info, see https://github.com/emscripten-core/emscripten/issues/5820 and how we've
+ * implemented this.)
+ */
+export const getWebAsmModulePromiseWithAugmentedTypes = <MODULE extends EmscriptenModule, PTR extends number>
+  (
+    functionReturningASadAndBuggyExcuseForAModulePromise: () => {then: (callback: (module: MODULE) => unknown) => unknown}
+  ): Promise<MODULE & TypedMemoryHelpersForEmscriptenModule<PTR>> =>
+    new Promise<MODULE & TypedMemoryHelpersForEmscriptenModule<PTR>> (
+      (resolveModule, reject) => {
+      try {
+        functionReturningASadAndBuggyExcuseForAModulePromise().then( (module: MODULE) => {
+          // The good folks at emscripten didn't understand promises when they decided to make their
+          // modules look kindof like promises to return modules and augmenting them with a .then()
+          // method.  Alas, rather than the then() returning the module, the then() was just another
+          // field on the object, and so if you awaited it you'd be stuck in an infinite loop of
+          // calls to then.  This hack in the next line, removing the then() method after it is called,
+          // fixes it until the fix from them is released and likely to be in the toolchain of
+          // anyone who might build this.
+          //
+          // https://github.com/emscripten-core/emscripten/issues/5820
+          delete (module as unknown as {then: any})['then'];
+          resolveModule(addTsMemoryToModule(module));
+        });
+      } catch (e) {
+          reject(e);
+      }
+    }
+  );
