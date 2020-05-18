@@ -10,7 +10,7 @@ test('Process dice image', async () => {
     const diceKeyImageProcessor = new (await DiceKeyImageProcessorModulePromise).webasmModule.DiceKeyImageProcessor();
     const {bitmap} = image;
     const beforeMs = (new Date()).getTime();
-    const result = diceKeyImageProcessor.processJsImageData(bitmap.width, bitmap.height, bitmap.data);
+    const result = diceKeyImageProcessor.processImageData(bitmap.width, bitmap.height, bitmap.data);
     const afterMs = (new Date()).getTime();
     console.log(`processJsImageData ${bitmap.width}x${bitmap.height} time (ms)`, afterMs - beforeMs);
     diceKeyImageProcessor.delete();
@@ -22,11 +22,11 @@ test('Augment dice image', async () => {
     const mod = await DiceKeyImageProcessorModulePromise;
     const diceKeyImageProcessor = new mod.webasmModule.DiceKeyImageProcessor();
     const {bitmap} = image;
-    const result = diceKeyImageProcessor.processJsImageData(bitmap.width, bitmap.height, bitmap.data);
+    const result = diceKeyImageProcessor.processImageData(bitmap.width, bitmap.height, bitmap.data);
     const beforeMs = (new Date()).getTime();
     mod.usingByteArray(bitmap.width * bitmap.height * 4, (bitMapBuffer) => {
         
-        diceKeyImageProcessor.renderAugmentationOverlayJs(bitmap.width, bitmap.height, bitMapBuffer.byteOffset);
+        diceKeyImageProcessor.renderAugmentationOverlay(bitmap.width, bitmap.height, bitMapBuffer.byteOffset);
         bitmap.data.set(bitMapBuffer);
     });
     image.write("test-outputs/augment-dice-image.png");

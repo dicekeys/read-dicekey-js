@@ -3,41 +3,37 @@
 
 using namespace emscripten;
 
-class DiceKeyImageProcessorJs : public DiceKeyImageProcessor {
-public:
-	inline bool processJsImageData (
-		int width,
-		int height,
-		const std::string &dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString
-	) {
-		return processRGBAImage(
-			width,
-			height,
-			width * 4,
-			(const uint32_t*) dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString.data()
-		);
-	}
-
-	inline std::string diceKeyReadJson() { return DiceKeyImageProcessor::jsonKeySqrRead(); }
-	inline bool isFinished() { return DiceKeyImageProcessor::isFinished(); }
-
-	inline void renderAugmentationOverlayJs(	
-		int width,
-		int height,
-		size_t rgbaArrayPtr
-	) {
-		renderAugmentationOverlay(width, height, (uint32_t*) rgbaArrayPtr);
-	};
+inline bool processImageData (
+	DiceKeyImageProcessor& thisDiceKeyImageProcessor,
+	int width,
+	int height,
+	const std::string &dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString
+) {
+	return thisDiceKeyImageProcessor.processRGBAImage(
+		width,
+		height,
+		width * 4,
+		(const uint32_t*) dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString.data()
+	);
+}
 
 
+inline void renderAugmentationOverlay(	
+	DiceKeyImageProcessor& thisDiceKeyImageProcessor,
+	int width,
+	int height,
+	size_t rgbaArrayPtr
+) {
+	thisDiceKeyImageProcessor.renderAugmentationOverlay(width, height, (uint32_t*) rgbaArrayPtr);
 };
 
-EMSCRIPTEN_BINDINGS(DiceKeyImageProcessorJs) {
-  class_<DiceKeyImageProcessorJs>("DiceKeyImageProcessor")
+
+EMSCRIPTEN_BINDINGS(DiceKeyImageProcessor) {
+  class_<DiceKeyImageProcessor>("DiceKeyImageProcessor")
     .constructor()
-    .function("processJsImageData", &DiceKeyImageProcessorJs::processJsImageData)
-    .function("renderAugmentationOverlayJs", &DiceKeyImageProcessorJs::renderAugmentationOverlayJs, allow_raw_pointers())
-    .function("diceKeyReadJson", &DiceKeyImageProcessorJs::diceKeyReadJson)
-    .function("isFinished", &DiceKeyImageProcessorJs::isFinished)
+    .function("processImageData", &processImageData)
+    .function("renderAugmentationOverlay", &renderAugmentationOverlay) //, allow_raw_pointers())
+    .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
+    .function("isFinished", &DiceKeyImageProcessor::isFinished)
     ;
 }

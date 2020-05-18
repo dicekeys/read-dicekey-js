@@ -9,9 +9,9 @@ declare module "read-dicekey-js" {
     export class DiceKeyImageProcessor {
         constructor();
         //   .function("processJsImageData", &DiceKeyImageProcessor::processJsImageData)
-        processJsImageData: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => Boolean;
+        processImageData: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => Boolean;
         //    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay)
-        renderAugmentationOverlayJs: (width: number, height: number, data: PtrAllocatedInDiceKeyImageProcessorModule) => Boolean;
+        renderAugmentationOverlay: (width: number, height: number, data: PtrAllocatedInDiceKeyImageProcessorModule) => Boolean;
         // .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
         diceKeyReadJson: () => String;
         // .function("isFinished", &DiceKeyImageProcessor::isFinished)  }

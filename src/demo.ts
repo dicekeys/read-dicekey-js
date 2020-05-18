@@ -85,7 +85,7 @@ class ImageProcessingTestPage {
         this.captureCanvasCtx.drawImage(this.player, 0, 0);
         var capturedImageData = this.captureCanvasCtx.getImageData(0, 0, this.captureCanvas.width, this.captureCanvas.height);
         const beforeMs = (new Date()).getTime();
-        const result = this.diceKeyImageProcessor.processJsImageData(this.captureCanvas.width, this.captureCanvas.height, capturedImageData.data);
+        const result = this.diceKeyImageProcessor.processImageData(this.captureCanvas.width, this.captureCanvas.height, capturedImageData.data);
         const afterMs = (new Date()).getTime();
         //console.log("Frame time: ", afterMs - beforeMs);
         if (result) {
@@ -96,7 +96,7 @@ class ImageProcessingTestPage {
         this.module.usingByteArray(capturedImageData.width * capturedImageData.height * 4, (bitMapBuffer) => {
             this.overlayCanvas.width = capturedImageData.width;
             this.overlayCanvas.height = capturedImageData.height;
-            this.diceKeyImageProcessor.renderAugmentationOverlayJs(capturedImageData.width, capturedImageData.height, bitMapBuffer.byteOffset);
+            this.diceKeyImageProcessor.renderAugmentationOverlay(capturedImageData.width, capturedImageData.height, bitMapBuffer.byteOffset);
             const overlayImageData = this.overlayCanvasCtx.getImageData(0, 0, capturedImageData.width, capturedImageData.height);
             overlayImageData.data.set(bitMapBuffer);
             this.overlayCanvasCtx.putImageData(overlayImageData, 0, 0);
