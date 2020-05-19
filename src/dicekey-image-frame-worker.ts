@@ -11,7 +11,6 @@ import {
     DiceKeyImageProcessorModulePromise
 } from "./dicekey-image-processor"
 import { DiceKeyImageProcessor } from "read-dicekey-js";
-import { Worker } from "cluster";
 
 /**
  * A request to process an image frame while scanning dicekeys
