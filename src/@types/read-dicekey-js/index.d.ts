@@ -9,13 +9,13 @@ declare module "read-dicekey-js" {
     export class DiceKeyImageProcessor {
         constructor();
         //   .function("processJsImageData", &DiceKeyImageProcessor::processJsImageData)
-        processImageData: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => Boolean;
+        processImageData: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => boolean;
         //    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay)
-        renderAugmentationOverlay: (width: number, height: number, data: PtrAllocatedInDiceKeyImageProcessorModule) => Boolean;
+        renderAugmentationOverlay: (width: number, height: number, data: PtrAllocatedInDiceKeyImageProcessorModule) => boolean;
         // .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
-        diceKeyReadJson: () => String;
+        diceKeyReadJson: () => string;
         // .function("isFinished", &DiceKeyImageProcessor::isFinished)  }
-        isFinished: () => Boolean;
+        isFinished: () => boolean;
         // All embind-generated objects are given a delete() method to destruct and clean up memory
         delete: () => void;
     }

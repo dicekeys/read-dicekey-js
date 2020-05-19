@@ -1,10 +1,8 @@
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import {
-    DiceKeyImageProcessorModuleWithHelpers,
-    DiceKeyImageProcessorModulePromise
-} from "./dicekey-image-processor"
-import { DiceKeyImageProcessor } from "read-dicekey-js";
+
+import {ProcessFrameRequest, ProcessFrameResponse} from "./dicekey-image-frame-worker"
+
 
 const  videoConstraintsForDevice = (deviceId: string): MediaStreamConstraints => ({
     video: {deviceId}
@@ -14,8 +12,7 @@ const  videoConstraintsForDevice = (deviceId: string): MediaStreamConstraints =>
  * This class implements the demo page.
  */
 class DemoPage {
-    private readonly module: DiceKeyImageProcessorModuleWithHelpers;
-    private readonly diceKeyImageProcessor: DiceKeyImageProcessor;
+    private readonly frameWorker = new Worker('dicekey-image-frame-worker.ts');
     private readonly captureCanvas = document.createElement("canvas") as HTMLCanvasElement;
     private captureCanvasCtx = this.captureCanvas.getContext("2d");
     private readonly overlayCanvas = document.getElementById("overlay-canvas") as HTMLCanvasElement;
@@ -29,15 +26,16 @@ class DemoPage {
      * processor has been loaded.  Pass the module to wire up the page with this class.
      * @param module The web assembly module that implements the DiceKey image processing.
      */
-    constructor(module: DiceKeyImageProcessorModuleWithHelpers) {
-        this.module = module;
-        this.diceKeyImageProcessor = new module.DiceKeyImageProcessor();
+    constructor() {
         // Start out with the default camear
         this.updateCamera();
         // See what other cameras are available
         navigator.mediaDevices.enumerateDevices().then( this.updateCameraList );
-        // Start frame processing (to be replaced with a web worker)
-        this.processFrame();
+        // Register a handler for responses to the requests will issue to the
+        // web worker to process camera frames.
+        this.frameWorker.addEventListener( "message", (ev) => this.handleProcessedCameraFrame(ev.data as ProcessFrameResponse) );
+        // Start processing frames from the camera
+        this.startProcessingNewCameraFrame();
     }
     
     /**
@@ -85,11 +83,16 @@ class DemoPage {
             this.updateCameraForDevice(this.cameraSelectionMenu.value) );
     }
 
-
-    processFrame = () => {
+    /**
+     * To process video images, we will loop through retrieving camera frames with
+     * this meethod, calling a webworker to process the frames, and then
+     * the web worker's response will trigger handleProcessedCameraFrame (below),
+     * which will call back to here.
+     */
+    startProcessingNewCameraFrame = () => {
         if (this.player.videoWidth == 0 || this.player.videoHeight == 0) {
             // There's no need to take action if there's no video
-            setTimeout(this.processFrame, 100);
+            setTimeout(this.startProcessingNewCameraFrame, 100);
             return;
         }
         // Ensure the capture canvas is the size of the video being retrieved
@@ -98,48 +101,49 @@ class DemoPage {
             this.captureCanvasCtx = this.captureCanvas.getContext("2d");
         }
         this.captureCanvasCtx.drawImage(this.player, 0, 0);
-        var capturedImageData = this.captureCanvasCtx.getImageData(0, 0, this.captureCanvas.width, this.captureCanvas.height);
-        const beforeMs = (new Date()).getTime();
-        const result = this.diceKeyImageProcessor.processImageData(this.captureCanvas.width, this.captureCanvas.height, capturedImageData.data);
-        const afterMs = (new Date()).getTime();
-        //console.log("Frame time: ", afterMs - beforeMs);
-        if (result) {
-            const json = this.diceKeyImageProcessor.diceKeyReadJson();
-            //console.log("Json", json);
-            // console.log("Time in Ms", afterMs - beforeMs);
-        }
- 
+        const {width, height, data} = this.captureCanvasCtx.getImageData(0, 0, this.captureCanvas.width, this.captureCanvas.height);
+
+        // Ask the background worker to process the bitmap.
+        // First construct a requeest
+        const request: ProcessFrameRequest = {
+            width, height, rgbImageAsArrayBuffer: data.buffer
+        };
+        // The mark the objects that can be transffered to the worker.
+        // This eliminates the need to copy the big memory buffer over, but the worker will now own the memory.
+        const transferrableObjectsWithinRequest: Transferable[] =  [request.rgbImageAsArrayBuffer];
+        // Send the request to the worker
+        this.frameWorker.postMessage(request, transferrableObjectsWithinRequest);
+    }
+
+    /**
+     * Handle frames processed by the web worker, displaying the received
+     * overlay image above the video image.
+     */
+    handleProcessedCameraFrame = (response: ProcessFrameResponse) => {
+        const {width, height, overlayImageBuffer, diceKeyReadJson, isFinished} = response;
         // Ensure the overlay canvas is the same size as the captured canvas
-        if (this.overlayCanvas.width != this.captureCanvas.width || this.overlayCanvas.height != this.captureCanvas.height) {
-            [this.overlayCanvas.width, this.overlayCanvas.height] = [this.captureCanvas.width, this.captureCanvas.height];
+        if (this.overlayCanvas.width != width || this.overlayCanvas.height != height) {
+            [this.overlayCanvas.width, this.overlayCanvas.height] = [width, height];
             this.overlayCanvasCtx = this.overlayCanvas.getContext("2d");
             // Ensure the overlay is lined up with the video frame
             const {left, top} = this.player.getBoundingClientRect()
             this.overlayCanvas.style.setProperty("left", left.toString());
             this.overlayCanvas.style.setProperty("top", top.toString());
-        }
-        // Render the augmented image onto the overlay
-        this.module.tsMemory.usingByteArray(capturedImageData.width * capturedImageData.height * 4, (bitMapBuffer) => {
-            this.diceKeyImageProcessor.renderAugmentationOverlay(capturedImageData.width, capturedImageData.height, bitMapBuffer.byteOffset);
-            const overlayImageData = this.overlayCanvasCtx.getImageData(0, 0, capturedImageData.width, capturedImageData.height);
-            overlayImageData.data.set(bitMapBuffer);
-            this.overlayCanvasCtx.putImageData(overlayImageData, 0, 0);
-        });
+        }        
+        const overlayImageData = this.overlayCanvasCtx.getImageData(0, 0, width, height);
+        overlayImageData.data.set(new Uint8Array(overlayImageBuffer));
+        this.overlayCanvasCtx.putImageData(overlayImageData, 0, 0);
+        //});
     
-        if (!this.diceKeyImageProcessor.isFinished()) {
-            setTimeout(this.processFrame, 10)
+        if (!isFinished) {
+            setTimeout(this.startProcessingNewCameraFrame, 0)
         }
     
     }
 };
 
-const start = () =>
-    // Don't start until the window is loaded
-    window.addEventListener("load", ( () => {
-        // And the module is loaded
-        DiceKeyImageProcessorModulePromise.then( (module) =>
-            // Start by constructing the class that implements the page's functionality
-            new DemoPage(module)
-    )}));
-
-start();
+// Don't start until the window is loaded
+window.addEventListener("load", ( () => {
+    // Start by constructing the class that implements the page's functionality
+    new DemoPage()
+}));

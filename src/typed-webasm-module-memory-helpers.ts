@@ -1,8 +1,8 @@
 // The good folks who wrote the below typings didn't write them to be importable as a module.
 /// <reference types="emscripten" />
 
-type BaseEmscriptenModule = EmscriptenModule;
-export type {BaseEmscriptenModule};
+type WebAssemblyModule = EmscriptenModule;
+export type {WebAssemblyModule};
 
 /**
  * This abstract type represents arrays allocated in a WebAssembly module,
@@ -47,10 +47,10 @@ export interface TypedMemoryHelpersForEmscriptenModule<INTRA_MODULE_PTR_TYPE ext
    * If the callback returns an object that is an instance of Promise, the
    * memory will live until the promise completes or an exception is thrown.
    */
-    usingByteArray: (
+    usingByteArray: <T>(
         arrayLengthInbytes: number,
-        callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => unknown
-    ) => unknown;
+        callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => T
+    ) => T;
 
     /***
    * Create a copy of an array in memory accessible to the WebAssembly module
@@ -59,8 +59,8 @@ export interface TypedMemoryHelpersForEmscriptenModule<INTRA_MODULE_PTR_TYPE ext
    */
     usingCopyOfArray: <T>(
         fromArray: Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array,
-        callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => unknown
-    ) => unknown;
+        callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => T
+    ) => T;
   }
 }
 
@@ -89,27 +89,56 @@ export function addTsMemoryToModule<MODULE extends EmscriptenModule, INTRA_MODUL
     module._free(array.byteOffset);
   };
 
-  const usingByteArray = async (
+  const usingByteArray = <T>(
     arrayLengthInbytes: number,
-    callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => unknown
-  ) => {
-      var array = allocateU8(arrayLengthInbytes);
-      try {
-        const result = callback(array);
-        if (typeof(result) === "object" && result instanceof Promise) {
-          await(result);
-        }
-      } finally {
+    callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => T
+  ): T => {
+    // We'll have two different mechanisms for freeing allocated memory, depending
+    // on whether the callback is an async function which should not be treated as
+    // complete until the promise it returns has completed.
+    var memoryCannotBeFreedUntilAsyncCallbackCompletes = false;
+
+    // Allcoate the memory that we'll want to ensure is freed after the callback completes
+    var array = allocateU8(arrayLengthInbytes);
+
+    // For non-async callbacks, this try-finally block will ensure that we can free memory
+    // regardless of whether the callback compltes successfully or even if an exception is thrown.
+    try {
+      // Call the caller's provided callback so it can use the array we've allocated.
+      const result = callback(array);
+
+      // Now we can test if the callback is an async function by seeing if it returned a promise.
+      if (typeof(result) === "object" && result instanceof Promise) {
+        // make sure we de-allocate the memory AFTER the callback's promise completes
+        result.finally( () => {
+          freeU8(array);
+        })
+        // Since this is not an async function (it can't return a promise unless the callback
+        // returns a promise) the finally block below will run before the async callback completes.
+        // Make sure the finally block below does not de-allocate the memory while the async
+        // callback is still using it.  The finally call above will free it instead.
+        memoryCannotBeFreedUntilAsyncCallbackCompletes = true;
+      }
+
+      // We return the result of the callback to the caller.
+      // If the callback was a async function, we return the (still unresolved) promise,
+      // since we're not waiting for it.
+      return result;
+    } finally {
+      // Make sure to free the memory we allocated
+      // (unless we're returning a Promise, in which case we'll do it later via promise.finally).
+      if (!memoryCannotBeFreedUntilAsyncCallbackCompletes) {
         freeU8(array);
       }
+    }
   };
 
-  const usingCopyOfArray = (
+  const usingCopyOfArray = <T>(
     fromArray: Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array,
-    callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => unknown
+    callback: (arrayCopiedIntoCppAccessibleBlock: Uint8ArrayWithPtrType<INTRA_MODULE_PTR_TYPE>) => T
   ) => usingByteArray(fromArray.length * fromArray.BYTES_PER_ELEMENT, (newArray) => {
       newArray.set(fromArray);
-      return callback(newArray);
+      return callback(newArray) as T;
   });
 
   return Object.assign( module, { tsMemory: {allocateU8, freeU8, usingByteArray, usingCopyOfArray } });

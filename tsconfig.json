@@ -16,5 +16,5 @@
       "outDir": "dist"
     },
     "include": ["src/**/*"],
-    "lib": ["node"]
+    "lib": ["node", "es6", "webworker"]
   }
