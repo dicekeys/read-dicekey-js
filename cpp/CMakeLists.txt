@@ -44,8 +44,6 @@ file(GLOB ALL_SRC_FILES
 #source_group("Sources" FILES ${SRC_FILES})
 #source_group("Headers" FILES ${HEADERS_FILES})
 
-# This if statement is a hack until Stuart figures out
-# how to get builds with shared libs working on windows
 add_executable(${READ_DICEKEY_JS_PROJECT_NAME}
     ${ALL_SRC_FILES}
 )
