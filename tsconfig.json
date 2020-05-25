@@ -4,12 +4,13 @@
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
       "target": "esnext",
+      "noImplicitThis": true,
       "noImplicitAny": true,
       "moduleResolution": "node",
       "rootDirs": ["src"],
       "baseUrl": "./src",
       "paths": {
-        "*" : ["./node_modules/@types", "src/@types/*", "src"],        
+        "*" : ["./node_modules/@types", "./node_modules/", "src/@types/*", "src"],        
         "~*": ["./src/*"]
       },
       "sourceMap": true,

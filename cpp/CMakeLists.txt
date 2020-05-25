@@ -11,6 +11,8 @@ set( CMAKE_CXX_STANDARD 11 )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z --bind \
     -s MODULARIZE=1 \
     -s ASSERTIONS=2 \
+    -s EXPORT_ES6=1 \
+    -s USE_ES6_IMPORT_META=0 \
     -g4 \
     --memory-init-file 0 -O3 \
 ")

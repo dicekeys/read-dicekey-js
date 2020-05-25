@@ -6,7 +6,7 @@ import {
 import {
   getWebAsmModulePromiseWithAugmentedTypes,
   TypedMemoryHelpersForEmscriptenModule,
-} from "./typed-webasm-module-memory-helpers";
+} from "@dicekeys/webasm-module-memory-helper";
 
 export {
   DiceKeyImageProcessor
@@ -20,7 +20,7 @@ export type DiceKeyImageProcessorModuleWithHelpers = DiceKeyImageProcessorModule
  * memory within the web assembly memory space.
  */
 export const DiceKeyImageProcessorModulePromise: Promise<DiceKeyImageProcessorModuleWithHelpers> =
-  getWebAsmModulePromiseWithAugmentedTypes(DiceKeyImageProcessorModuleNotReallyAPromiseFn)
+  getWebAsmModulePromiseWithAugmentedTypes(DiceKeyImageProcessorModuleNotReallyAPromiseFn())
 
 
 

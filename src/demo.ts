@@ -1,8 +1,33 @@
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import {
+    SeededCryptoModulePromise
+} from "@dicekeys/seeded-crypto-js"
 
 import {ProcessFrameRequest, ProcessFrameResponse} from "./dicekey-image-frame-worker"
 
+
+interface FaceRead {
+    orientationAsLowercaseLetterTRBL: string;
+    ocrLetterCharsFromMostToLeastLikely: string;
+    ocrDigitCharsFromMostToLeastLikely: string;
+}
+
+class DiceKey {
+    faces: FaceRead[]
+
+    constructor(_faces: FaceRead[]) {
+        this.faces = _faces;
+    }
+
+    toHumanReaadableForm = () =>
+        this.faces.map( (face => 
+            face.ocrLetterCharsFromMostToLeastLikely.charAt(0) +
+            face.ocrDigitCharsFromMostToLeastLikely.charAt(0) +
+            face.orientationAsLowercaseLetterTRBL
+        )).join("");
+    
+}
 
 const  videoConstraintsForDevice = (deviceId: string): MediaStreamConstraints => ({
     video: {deviceId}
@@ -135,7 +160,17 @@ class DemoPage {
         this.overlayCanvasCtx.putImageData(overlayImageData, 0, 0);
         //});
     
-        if (!isFinished) {
+        if (isFinished) {
+            const diceKey = new DiceKey(JSON.parse(diceKeyReadJson) as FaceRead[]);
+            const hrf = diceKey.toHumanReaadableForm();
+            SeededCryptoModulePromise.then( (module) => {
+                const unsealingKey = module.UnsealingKey.deriveFromSeed(hrf, "");
+                const sealingKey = unsealingKey.getSealingKey();
+                console.log("Sealing (public) key", sealingKey.toJson());
+                unsealingKey.delete();
+                sealingKey.delete();
+            })
+        } else {
             setTimeout(this.startProcessingNewCameraFrame, 0)
         }
     
