@@ -1,14 +1,15 @@
 // import {round} from "./round";
 import {
   Face,
-  FaceRotationLetterToClockwise90DegreeRotationsFromUpright,
-  FaceLetter, FaceLetters, FaceDigit, FaceOrientation, faceRotationLetterToClockwiseAngle
+  FaceLetters, 
+  faceRotationLetterToClockwiseAngle
 } from "./face";
 import {
   Point
 } from "./undoverline"
 import {letterIndexTimesSixPlusDigitIndexFaceWithUndoverlineCodes, FaceWithUndoverlineCodes, UndoverlineCodes, getUndoverlineCodes} from "./undoverline-tables";
 import {FaceDimensionsFractional} from "./face-dimensions";
+import { DiceKey } from "./dicekey";
 export const FontFamily = "Inconsolata";
 export const FontWeight = "700";
 
@@ -25,30 +26,53 @@ export function addUndoverlineCodes<T extends Face>(face: T): T & UndoverlineCod
 }
 
 
-export class RenderContext {
+export const renderDiceKey = (
+  ctx: CanvasRenderingContext2D,
+  diceKey: DiceKey
+): void => {
+  const {width, height} = ctx.canvas;
+  const linearSize = Math.min(width, height);
+  const linearFaceSize = linearSize / 5;
+  const centerX = width / 2;
+  const centerY = width / 2;
+
+  const rc = new DiceKeyRenderContext(ctx, linearFaceSize, 5/8);
+
+  diceKey.forEach( (face, index) =>
+    rc.renderFace(face,
+      {
+        x: centerX + linearFaceSize * (-2 + (index % 5)),
+        y: centerY + linearFaceSize * (-2 + Math.floor(index / 5))
+      }
+  ));
+}
+
+export class DiceKeyRenderContext {
   constructor(
     protected ctx: CanvasRenderingContext2D,
-    protected linearSizeOfFace: number
+    protected linearSizeOfFace: number,
+    protected linearFractionOfCoverage: number
   ) {}
 
-  protected readonly fontSize = FaceDimensionsFractional.fontSize * this.linearSizeOfFace;
-  protected readonly letterSpacing = FaceDimensionsFractional.spaceBetweenLetterAndDigit * this.linearSizeOfFace;
+  protected readonly linearScaling = this.linearSizeOfFace * this.linearFractionOfCoverage;
+  protected readonly fontSize = FaceDimensionsFractional.fontSize * this.linearScaling;
+  protected readonly letterSpacing = FaceDimensionsFractional.spaceBetweenLetterAndDigit * this.linearScaling;
   protected readonly fractionalXDistFromFaceCenterToCharCenter = (FaceDimensionsFractional.charWidth + FaceDimensionsFractional.spaceBetweenLetterAndDigit) / 2
-  protected readonly charXOffsetFromCenter = this.fractionalXDistFromFaceCenterToCharCenter * this.linearSizeOfFace;
-  private readonly undoverlineLength = FaceDimensionsFractional.undoverlineLength * this.linearSizeOfFace;
-  private readonly undoverlineHeight = FaceDimensionsFractional.undoverlineThickness * this.linearSizeOfFace;
-  private readonly undoverlineDotWidth = FaceDimensionsFractional.undoverlineDotWidth * this.linearSizeOfFace;
-  private readonly undoverlineDotHeight = FaceDimensionsFractional.undoverlineDotHeight * this.linearSizeOfFace;
+  protected readonly charXOffsetFromCenter = this.fractionalXDistFromFaceCenterToCharCenter * this.linearScaling;
+  private readonly undoverlineLength = FaceDimensionsFractional.undoverlineLength * this.linearScaling;
+  private readonly undoverlineHeight = FaceDimensionsFractional.undoverlineThickness * this.linearScaling;
+  private readonly undoverlineDotWidth = FaceDimensionsFractional.undoverlineDotWidth * this.linearScaling;
+  private readonly undoverlineDotHeight = FaceDimensionsFractional.undoverlineDotHeight * this.linearScaling;
 
   renderFace = (
     face: Face,
     center: Point
   ): void => {
-    const dieLeft = center.x - 0.5 * this.linearSizeOfFace;
-    const dieTop = center.y - 0.5 * this.linearSizeOfFace;
-    const undoverlineLeft = dieLeft + this.linearSizeOfFace * FaceDimensionsFractional.undoverlineLeftEdge;
-    const undoverlineRight = undoverlineLeft + this.linearSizeOfFace * FaceDimensionsFractional.undoverlineLength;
-    const firstDotLeft = dieLeft + this.linearSizeOfFace * FaceDimensionsFractional.undoverlineFirstDotLeftEdge ;
+    const dieLeft = center.x - 0.5 * this.linearScaling;
+    const dieTop = center.y - 0.5 * this.linearScaling;
+    const undoverlineLeft = dieLeft + this.linearScaling * FaceDimensionsFractional.undoverlineLeftEdge;
+    const undoverlineRight = undoverlineLeft + this.linearScaling * FaceDimensionsFractional.undoverlineLength;
+    const firstDotLeft = dieLeft + this.linearScaling * FaceDimensionsFractional.undoverlineFirstDotLeftEdge ;
     const {underlineCode, overlineCode} = getUndoverlineCodes(face);
 
     // Draw an underline or overline
@@ -57,13 +81,13 @@ export class RenderContext {
         // Calculate the coordinates of the black [und|ov]erline rectangle
         const fractionalTop =  isOverline ?
           FaceDimensionsFractional.overlineTop : FaceDimensionsFractional.underlineTop;
-        const top = dieTop + this.linearSizeOfFace * fractionalTop;
+        const top = dieTop + this.linearScaling * fractionalTop;
 
       // Adjust from center top top of face, then add distance from top to face to top of dot box
       const fractionalDotTop =  isOverline ?
         FaceDimensionsFractional.overlineDotTop : FaceDimensionsFractional.underlineDotTop;
-      const undoverlineDotTop = dieTop + this.linearSizeOfFace * fractionalDotTop;
-//      const bottom = top + FaceDimensionsFractional.undoverlineThickness * this.linearSizeOfFace
+      const undoverlineDotTop = dieTop + this.linearScaling * fractionalDotTop;
+//      const bottom = top + FaceDimensionsFractional.undoverlineThickness * this.linearScaling
       this.ctx.fillStyle = "#000000";
       this.ctx.fillRect(undoverlineLeft, top, this.undoverlineLength, this.undoverlineHeight);
 
@@ -87,8 +111,10 @@ export class RenderContext {
     // correct direction
     const rotateCanvasBy = faceRotationLetterToClockwiseAngle(face.orientationAsLowercaseLetterTRBL);
     if (rotateCanvasBy !== 0) {
-        this.ctx.save()
-        this.ctx.rotate(rotateCanvasBy)
+//        this.ctx.save();
+        this.ctx.translate(+center.x, +center.y);
+        this.ctx.rotate(rotateCanvasBy * Math.PI / 180);
+        this.ctx.translate(-center.x, -center.y);
     }
 
     // Calculate the positions of the letter and digit
@@ -96,11 +122,11 @@ export class RenderContext {
     const letterX = center.x - this.charXOffsetFromCenter;
     // Digit is right of cetner
     const digitX = center.x + this.charXOffsetFromCenter;
-    const textY = dieTop + FaceDimensionsFractional.textBaselineY * this.linearSizeOfFace
+    const textY = dieTop + FaceDimensionsFractional.textBaselineY * this.linearScaling
     // Render the letter and digit
     this.ctx.fillStyle = "#000000"
     this.ctx.textAlign = "center";
-    const font = `${ FaceDimensionsFractional.fontSize * this.linearSizeOfFace }px 700 Inconsolata`;
+    const font = `${ FaceDimensionsFractional.fontSize * this.linearScaling }px 700 Inconsolata`;
     this.ctx.font = font;
     this.ctx.fillText(face.letter.toString(), letterX, textY)
     this.ctx.fillText(face.digit.toString(), digitX, textY)
@@ -110,7 +136,10 @@ export class RenderContext {
 
     // Undo the rotation used to render the face
     if (rotateCanvasBy !== 0) {
-        this.ctx.restore()
+//        this.ctx.restore()
+      this.ctx.translate(+center.x, +center.y);
+      this.ctx.rotate(-rotateCanvasBy * Math.PI / 180);
+      this.ctx.translate(-center.x, -center.y);
     }
 
   }
