@@ -4,7 +4,11 @@ import {
     SeededCryptoModulePromise
 } from "@dicekeys/seeded-crypto-js"
 
-import {ProcessFrameRequest, ProcessFrameResponse} from "./dicekey-image-frame-worker"
+import {
+    ProcessFrameRequest,
+    ProcessFrameResponse,
+    TerminateSessionRequest
+} from "./dicekey-image-frame-worker"
 
 
 interface FaceRead {
@@ -45,6 +49,7 @@ class DemoPage {
     private readonly player = document.getElementById('player') as HTMLVideoElement;
     private readonly cameraSelectionMenu = document.getElementById('camera-selection-menu') as HTMLSelectElement;
     private mediaStream: MediaStream | undefined;
+    private cameraSessionId = Math.random().toString() + Math.random().toString();
 
     /**
      * The code supporting the dmeo page cannot until the WebAssembly module for the image
@@ -131,7 +136,10 @@ class DemoPage {
         // Ask the background worker to process the bitmap.
         // First construct a requeest
         const request: ProcessFrameRequest = {
-            width, height, rgbImageAsArrayBuffer: data.buffer
+            action: "processImageFrame",
+            sessionId: this.cameraSessionId,
+            width, height,
+            rgbImageAsArrayBuffer: data.buffer
         };
         // The mark the objects that can be transffered to the worker.
         // This eliminates the need to copy the big memory buffer over, but the worker will now own the memory.
@@ -161,6 +169,8 @@ class DemoPage {
         //});
     
         if (isFinished) {
+            this.frameWorker.postMessage({action: "terminateSession", sessionId: this.cameraSessionId} as TerminateSessionRequest);
+
             const diceKey = new DiceKey(JSON.parse(diceKeyReadJson) as FaceRead[]);
             const hrf = diceKey.toHumanReaadableForm();
             SeededCryptoModulePromise.then( (module) => {

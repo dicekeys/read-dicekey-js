@@ -12,20 +12,30 @@ import {
 } from "./dicekey-image-processor"
 import { DiceKeyImageProcessor } from "read-dicekey-js";
 
+
 /**
  * A request to process an image frame while scanning dicekeys
  */
 export interface ProcessFrameRequest {
+    action: "processImageFrame";
+    sessionId: string;
     width: number;
     height: number;
     rgbImageAsArrayBuffer: ArrayBuffer;
 }
+
+export interface TerminateSessionRequest {
+    action: "terminateSession";
+    sessionId: string;
+}
+
 
 /**
  * A response with the result of processing a camera frame
  * to look for a DiceKey
  */
 export interface ProcessFrameResponse {
+    action: "process";
     width: number;
     height: number;
     overlayImageBuffer: ArrayBuffer | SharedArrayBuffer,
@@ -33,9 +43,19 @@ export interface ProcessFrameResponse {
     diceKeyReadJson: string
 }
 
+function isTerminateSessionRequest(t: any) : t is TerminateSessionRequest {
+    return typeof t === "object" &&
+        "action" in t &&
+        t.action === "termainateSession" &&
+        "sessionId" in t;
+}
+
+
 function isProcessFrameRequest(t: any) : t is ProcessFrameRequest {
     return typeof t === "object" &&
-        "width" in t && "height" in t &&
+        "action" in t &&
+        t.action === "processImageFrame" &&
+        "sessionId" in t && "width" in t && "height" in t &&
         "rgbImageAsArrayBuffer" in t;
 }
 
@@ -45,36 +65,41 @@ function isProcessFrameRequest(t: any) : t is ProcessFrameRequest {
  */
 class FrameProcessingWorker {
     private readonly module: DiceKeyImageProcessorModuleWithHelpers;
-    private readonly diceKeyImageProcessor: DiceKeyImageProcessor;
+    private readonly sessionIdToImageProcessor = new Map<string, DiceKeyImageProcessor>();
 
     constructor(module: DiceKeyImageProcessorModuleWithHelpers) {
         this.module = module;
-        this.diceKeyImageProcessor = new module.DiceKeyImageProcessor();
         addEventListener( "message", (requestMessage) => {
-            if (!isProcessFrameRequest(requestMessage.data)) return;
-            const response = this.processImageFrame(requestMessage.data);
-            const transferableObjectsWithinResponse: Transferable[] = [
-                response.overlayImageBuffer
-            ];
-            // TypeScript hack since it doesn't understand this is a worker and StackOverflow
-            // posts make it look hard to convince it otherwise.
-            (self as unknown as {postMessage: (m: any, t: Transferable[]) => unknown}).postMessage(response, transferableObjectsWithinResponse);
+            if (isTerminateSessionRequest(requestMessage.data)) {
+                this.sessionIdToImageProcessor.delete(requestMessage.data.action);
+            } else if (isProcessFrameRequest(requestMessage.data)) {
+                const response = this.processImageFrame(requestMessage.data);
+                const transferableObjectsWithinResponse: Transferable[] = [
+                    response.overlayImageBuffer
+                ];
+                // TypeScript hack since it doesn't understand this is a worker and StackOverflow
+                // posts make it look hard to convince it otherwise.
+                (self as unknown as {postMessage: (m: any, t: Transferable[]) => unknown}).postMessage(response, transferableObjectsWithinResponse);
+            }
         });
     }
     
-    processImageFrame = ({width, height, rgbImageAsArrayBuffer}: ProcessFrameRequest): ProcessFrameResponse => {
-        this.diceKeyImageProcessor.processImageData(width, height, new Uint8ClampedArray(rgbImageAsArrayBuffer) );
-        // Render the augmented image onto the overlay
+    processImageFrame = ({sessionId, width, height, rgbImageAsArrayBuffer}: ProcessFrameRequest): ProcessFrameResponse => {
+        if (!this.sessionIdToImageProcessor.has(sessionId)) {
+            this.sessionIdToImageProcessor.set(sessionId, new this.module.DiceKeyImageProcessor());
+        }
+        const diceKeyImageProcessor = this.sessionIdToImageProcessor.get(sessionId);
         const bitMapArray = this.module.tsMemory.usingByteArray(width * height * 4, (bitmapBuffer) => {
-            this.diceKeyImageProcessor.renderAugmentationOverlay(width, height, bitmapBuffer.byteOffset);
+            diceKeyImageProcessor.renderAugmentationOverlay(width, height, bitmapBuffer.byteOffset);
             // Copy and return output array into a byte array that exists outside webasm memory.
             return new Uint8Array(bitmapBuffer)
         });
         return {
+            action: "process",
             height, width,
             overlayImageBuffer: bitMapArray.buffer,
-            isFinished: this.diceKeyImageProcessor.isFinished(),
-            diceKeyReadJson: this.diceKeyImageProcessor.diceKeyReadJson()
+            isFinished: diceKeyImageProcessor.isFinished(),
+            diceKeyReadJson: diceKeyImageProcessor.diceKeyReadJson()
         }
     }
 }
