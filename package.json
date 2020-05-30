@@ -1,22 +1,30 @@
 {
-  "name": "read-dicekeys",
+  "name": "@dicekeys/read-dicekeys-js",
   "version": "0.0.1",
-  "description": "DiceKeys image scanner",
-  "main": "test",
+  "description": "DiceKeys image processor",
+  "scope": "@dicekeys/read-dicekeys-js",
+  "main": "dist/dicekey-image-processor.js",
+  "types": "dist/dicekey-image-processor.d.ts",
   "ignore-type": "module",
   "test": "jest",
   "scripts": {
-    "start-web": "node dist/web.js",
-    "start": "npm run build:live",
-    "build": "tsc -p .",
-    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+    "prepare": "tsc && copyfiles --flat src/read-dicekey-js.* dist",
+    "build": "tsc && copyfiles --flat src/read-dicekey-js.* dist",
+    "test": "jest"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/dicekeys",
+    "access": "restricted"
+  },
+  "files": [
+    "/dist/",
+    "/src/",
+    "!/dist/tests/",
+    "!/src/tests/"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dicekeys/read-dicekeys-js.git"
-  },
-  "alias": {
-    "read-dicekey-js": "./src/read-dicekey-js"
   },
   "author": "Stuart Schechter",
   "license": "UNLICENSED",
@@ -25,21 +33,17 @@
   },
   "homepage": "https://github.com/dicekeys/read-dicekeys-js#readme",
   "dependencies": {
-    "@dicekeys/seeded-crypto-js": "^0.1.9",
-    "@dicekeys/webasm-module-memory-helper": "^1.0.3"
+    "@dicekeys/seeded-crypto-js": "^0.1.12",
+    "@dicekeys/webasm-module-memory-helper": "^1.0.3",
+    "copyfiles": "^2.3.0"
   },
   "devDependencies": {
     "@types/emscripten": "^1.39.4",
-    "@types/express": "^4.17.6",
     "@types/jest": "^25.2.2",
     "@types/node": "^14.0.1",
-    "canvas": "^2.6.1",
     "core-js": "^3.6.5",
-    "express": "^4.17.1",
     "jest": "^26.0.1",
     "jimp": "^0.11.0",
-    "nodemon": "^2.0.3",
-    "parcel-bundler": "^1.12.4",
     "ts-jest": "^26.0.0",
     "ts-lint": "^4.5.1",
     "ts-node": "^8.10.0",
