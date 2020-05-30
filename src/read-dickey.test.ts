@@ -1,10 +1,16 @@
 import {DiceKeyImageProcessorModulePromise} from "./dicekey-image-processor"
 var path = require('path');
-
+import * as fs from "fs";
 
 import Jimp from "jimp"
 
 test('Process dice image', async () => {
+    const pc = ["..", "cpp", "read-dicekey", "tests", "test-lib-read-keysqr", "img"];
+
+    [...Array(pc.length).keys()].forEach( (i) => {
+        const p = path.resolve( __dirname, pc.slice(0, i+1).join("/"));
+        console.log(p, JSON.stringify(fs.readdirSync(p), null, 2));
+    });
     const image = await Jimp.read(
         path.resolve(
             __dirname,
