@@ -1,4 +1,4 @@
-# read-dicekeys-js
+# read-dicekey-js
 Web assembly distribution of the DiceKeys reading algorithms
 
 
