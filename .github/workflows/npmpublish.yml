@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      with:
-        # Need to download submodules to have access to test cases for CI
-        token: ${{ secrets.PACKAGE_PAT }}
-        submodules: true
+        with:
+          # Need to download submodules to have access to test cases for CI
+          token: ${{ secrets.PACKAGE_PAT }}
+          submodules: true
       - uses: actions/setup-node@v1
         with:
           node-version: 12
