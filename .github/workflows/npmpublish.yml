@@ -58,7 +58,7 @@ jobs:
           scope: '@dicekeys'
       - run: npm ci
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PAT}}
       - run: npm run build --if-present
       - run: cp src/read-dicekeys-js.* dist/
       - run: npm publish
