@@ -14,14 +14,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Need to download submodules to have access to test cases for CI
+        submodules: recursive
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: https://npm.pkg.github.com/
         scope: '@dicekeys'
-        # Need to download submodules to have access to test cases for CI
-        submodules: recursive
     - name: Install dependencies
       run: npm ci
       env:
