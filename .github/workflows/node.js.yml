@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         # Need to download submodules to have access to test cases for CI
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.PACKAGE_PAT }}
         submodules: true
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
