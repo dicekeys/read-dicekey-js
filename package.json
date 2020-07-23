@@ -1,6 +1,6 @@
 {
   "name": "@dicekeys/read-dicekey-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "DiceKeys image processor",
   "scope": "@dicekeys",
   "main": "dist/dicekey-image-processor.js",
@@ -33,7 +33,6 @@
   },
   "homepage": "https://github.com/dicekeys/read-dicekey-js#readme",
   "dependencies": {
-    "@dicekeys/seeded-crypto-js": "^0.1.12",
     "@dicekeys/webasm-module-memory-helper": "^1.0.3"
   },
   "devDependencies": {
