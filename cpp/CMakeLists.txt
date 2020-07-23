@@ -86,11 +86,12 @@ target_link_options(
 
 message("${READ_DICEKEY_JS_PROJECT_NAME}: Target OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
 target_include_directories( ${READ_DICEKEY_JS_PROJECT_NAME} PUBLIC
-#        ${PROJECT_SOURCE_DIR}/lib-keysqr
+        $ENV{emsdk}/upstream/emscripten/system/include/
         ${PROJECT_SOURCE_DIR}/lib-read-keysqr
         ${OpenCV_INCLUDE_DIRS}
 )
 message("OPENCV_INCLUDE_DIRS AT ${OpenCV_INCLUDE_DIRS}")
+message("EMSDK AT $ENV{emsdk}/upstream/emscripten/system/include/")
 
 
 # Link OpenCV and lib-keysqr so that they're both accessible as part of this add_library
@@ -98,8 +99,6 @@ message("OPENCV_INCLUDE_DIRS AT ${OpenCV_INCLUDE_DIRS}")
 
 target_link_libraries(${READ_DICEKEY_JS_PROJECT_NAME}
     PRIVATE
-#    ${OpenCV_LIBS}
-#    lib-keysqr
     lib-read-keysqr
 )
 

@@ -1,6 +1,6 @@
 {
   "name": "@dicekeys/read-dicekey-js",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "DiceKeys image processor",
   "scope": "@dicekeys",
   "main": "dist/dicekey-image-processor.js",
@@ -8,6 +8,7 @@
   "ignore-type": "module",
   "test": "jest",
   "scripts": {
+    "build-cpp": "cmake -S cpp/ -B build/ && cd build && ninja && cd .. && copyfiles --flat src/read-dicekey-js.* dist",
     "prepare": "tsc && copyfiles --flat src/read-dicekey-js.* dist",
     "build": "tsc && copyfiles --flat src/read-dicekey-js.* dist",
     "test": "jest"
