@@ -13,11 +13,11 @@ inline bool processRGBAImage (
 //	const std::string &dataFieldWhichIsUint8ClampedArrayInJsButEmbindTreatsAsStdString
 ) {
 	// Ensure data vector stays in scope until end of function.
-	const std::vector<uint32_t> dataVector = vectorFromJsTypedNumericArray<uint32_t>(data);
+	const std::vector<uint8_t> dataVector = byteVectorFromJsNumericArray(data);
 	return thisDiceKeyImageProcessor.processRGBAImage(
 		width,
 		height,
-		dataVector.data()
+		(uint32_t*) dataVector.data()
 	);
 }
 
@@ -27,13 +27,13 @@ inline bool processRGBAImageAndRenderOverlay(
 	int height,
 	const emscripten::val& rgbaByteArrayInJsMemory
 ) {
-	std::vector<uint32_t> rgbaByteArrayInCppMemory = vectorFromJsTypedNumericArray<uint32_t>(rgbaByteArrayInJsMemory);
+	std::vector<uint8_t> rgbaByteArrayInCppMemory = byteVectorFromJsNumericArray(rgbaByteArrayInJsMemory);
 	bool result = thisDiceKeyImageProcessor.processRGBAImage(
 		width,
 		height,
-		rgbaByteArrayInCppMemory.data()
+		(uint32_t*) rgbaByteArrayInCppMemory.data()
 	);
-	thisDiceKeyImageProcessor.renderAugmentationOverlay(width, height, rgbaByteArrayInCppMemory.data());
+	thisDiceKeyImageProcessor.renderAugmentationOverlay(width, height, (uint32_t*) rgbaByteArrayInCppMemory.data());
 	writeVectorBackIntoJsTypedNumericArray(rgbaByteArrayInJsMemory, rgbaByteArrayInCppMemory);
 	return result;
 };
@@ -44,13 +44,13 @@ inline bool processAndAugmentRGBAImage(
 	int height,
 	const emscripten::val& rgbaByteArrayInJsMemory
 ) {
-	std::vector<uint32_t> rgbaByteArrayInCppMemory = vectorFromJsTypedNumericArray<uint32_t>(rgbaByteArrayInJsMemory);
+	std::vector<uint8_t> rgbaByteArrayInCppMemory = byteVectorFromJsNumericArray(rgbaByteArrayInJsMemory);
 	bool result = thisDiceKeyImageProcessor.processRGBAImage(
 		width,
 		height,
-		rgbaByteArrayInCppMemory.data()
+		(uint32_t*) rgbaByteArrayInCppMemory.data()
 	);
-	thisDiceKeyImageProcessor.augmentRGBAImage(width, height, rgbaByteArrayInCppMemory.data());
+	thisDiceKeyImageProcessor.augmentRGBAImage(width, height, (uint32_t*) rgbaByteArrayInCppMemory.data());
 	writeVectorBackIntoJsTypedNumericArray(rgbaByteArrayInJsMemory, rgbaByteArrayInCppMemory);
 	return result;
 };

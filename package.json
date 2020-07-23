@@ -1,6 +1,6 @@
 {
   "name": "@dicekeys/read-dicekey-js",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "DiceKeys image processor",
   "scope": "@dicekeys",
   "main": "dist/dicekey-image-processor.js",

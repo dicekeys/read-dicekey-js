@@ -42,7 +42,21 @@ test('processRGBAImageAndRenderOverlay', async () => {
     image.write("test-outputs/processRGBAImageAndRenderOverlay.png");
     const afterMs = (new Date()).getTime();
     diceKeyImageProcessor.delete();
-    expect(result);
+    expect(result).toBe(true);
+});
+
+
+test('processRGBAImageAndRender really big but empty', async () => {
+    const mod = await DiceKeyImageProcessorModulePromise;
+    const diceKeyImageProcessor = new mod.DiceKeyImageProcessor();
+    const width = 1920;
+    const height = 1200;
+    const data = new Uint8Array(4 * width  * height);
+    const beforeMs = (new Date()).getTime();
+    const result = diceKeyImageProcessor.processRGBAImageAndRenderOverlay(width, height, data);
+    const afterMs = (new Date()).getTime();
+    diceKeyImageProcessor.delete();
+    expect(result).toBe(false);
 });
 
 
