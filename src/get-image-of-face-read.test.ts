@@ -16,7 +16,7 @@ const testData: string[] = [
 
 describe(`getImageOfFaceRead tests`, () => {
   for (const fileName of testData) {
-    const filePrefix = fileName.split(".")[0] ?? "unknown";
+    const filePrefix = fileName.split(".")[0];
     test(`image with read error ${filePrefix}`, async () => {
         const image = await Jimp.read(
             path.resolve(
