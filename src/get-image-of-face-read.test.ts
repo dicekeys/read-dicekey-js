@@ -1,4 +1,6 @@
-import {DiceKeyImageProcessorModulePromise} from "./dicekey-image-processor"
+import {
+  DiceKeyImageProcessorModulePromise
+} from "./dicekey-image-processor"
 var path = require('path');
 import {
     createCanvas, createImageData
@@ -6,8 +8,12 @@ import {
 import * as fs from "fs";
 
 import Jimp from "jimp"
-import { getImageOfFaceRead } from "./get-image-of-face-read";
-import { FaceRead } from "./face-read";
+import {
+  getImageOfFaceRead
+} from "/get-image-of-face-read";
+import {
+  FaceRead
+} from "/face-read";
 
 const testData: string[] = [
     "C22I12L11G51P31F53K22V40S13W53T31O50Z30B13M51E22J13H43U30A13D62N13R61X60Y41-faded.jpg",
