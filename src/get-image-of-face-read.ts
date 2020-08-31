@@ -4,43 +4,39 @@ import {
 import {
   FaceRead
 } from "./face-read";
-import { Canvas, Image } from "canvas";
-import { faceRotationLetterToClockwiseAngle } from "./face";
+import {
+  drawRotatedAndScaledImage
+} from "./draw-rotated-and-scaled-image";
 
-  
-export const angleOfLineInSignedRadians2f = (line: Line) => {
-  const {start, end} = line;
-	const deltaX = end.x - start.x;
-	const deltaY = end.y - start.y;
-	return Math.atan2(deltaY, deltaX);
-}
 
-// from https://stackoverflow.com/questions/17411991/html5-canvas-rotate-image
-// x,y position of image center
-// scale scale of image
-// rotation in radians.
-// same as above but cx and cy are the location of the point of rotation
-// in image pixel coordinates
-const drawImageCenter = (
-  ctx: CanvasRenderingContext2D,
-  image: ImageBitmap,
-  x: number, y: number,
-  scale: number,
-  rotation: number
-) => {
-  ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
-  ctx.rotate(rotation);
-  ctx.drawImage(image, -image.width / 2, -image.height / 2);
-  ctx.setTransform(1,0,0,1,0,0);
-}
+const angleOfLineInSignedRadians2f = ({start, end}: Line) =>
+	Math.atan2(end.y - start.y, end.x - start.x);
 
-export const getImageOfFaceRead = (destCtx: CanvasRenderingContext2D, srcImage: HTMLCanvasElement | ImageBitmap, faceRead: FaceRead) => {
+/**
+ * Isolate and copy single face among the 25 faces read in an image of a DiceKey.
+ * Used so that we can read images with bit errors and have the user error-check
+ * them for us.
+ * 
+ * @param dstCtx The rendering context of the canvas to write into
+ * @param srcImage The source image from which a DiceKey was read
+ * @param faceRead The face to grab an image of.
+ * 
+ * @returns True if successful, false if unable to find the die center/angle to read
+ */
+export const getImageOfFaceRead = (
+  dstCtx: CanvasRenderingContext2D,
+  srcImage: HTMLCanvasElement | ImageBitmap,
+  faceRead: FaceRead
+): boolean => {
   const {
     center,
     underline,
     overline
   } = faceRead;
 
+  /**
+   * Determine the more reliable underline/overline to read
+   */
   const undoverlines: Undoverline[] = (
     // get the set of 0-2 undoverlines that are not null
     [underline, overline].filter( u => u != null ) as Undoverline[]
@@ -56,17 +52,21 @@ export const getImageOfFaceRead = (destCtx: CanvasRenderingContext2D, srcImage: 
     0
   );
   if (undoverlines.length == 0) {
-    return undefined;
+    return false;
   }
   const {line} = undoverlines[0];
   const {end, start} = line;
-  const angle = angleOfLineInSignedRadians2f(undoverlines[0].line);
+  // Calculate the underline/overline length with help from Pythagoras et al.
   const lineLength = Math.sqrt( Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2) );
-  const scale = destCtx.canvas.width / (lineLength * 1.2);
-  const {x, y} = center;  
-  destCtx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
-//  destCtx.rotate(angle);
-  const halfImage = lineLength / 2;// 0;// destCtx.canvas.width / (2 * scale);
-  destCtx.drawImage(srcImage, -x, -y);// -x + halfImage, -y + halfImage);
-  destCtx.setTransform(1,0,0,1,0,0);
+  // Copy an extra 20% for extra buffer in case angles are off and so that
+  // the image does not appear to cramped.
+  const srcSize = lineLength * 1.2;
+
+  drawRotatedAndScaledImage(dstCtx, srcImage,
+    {x: dstCtx.canvas.width/2, y: dstCtx.canvas.height/2},
+    center,
+    angleOfLineInSignedRadians2f(undoverlines[0].line),
+    dstCtx.canvas.width / srcSize
+  );
+  return true;
 }
