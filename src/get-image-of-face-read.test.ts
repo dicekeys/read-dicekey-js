@@ -40,8 +40,9 @@ describe(`getImageOfFaceRead tests`, () => {
         imageData.data.set(data);
         ctx.putImageData(imageData, 0, 0);
         const facesRead = JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) as FaceRead[];
-        console.log("facesRead", facesRead)
-        const facesWithErrors = facesRead.filter( face => FaceRead.fromJson(face).errors.length > 0 );
+        const facesWithErrors = facesRead
+          .map( face => FaceRead.fromJson(face) )
+          .filter( faceRead => faceRead.errors.length > 0 );
 
         for (const face of facesWithErrors) {
 
@@ -59,11 +60,10 @@ describe(`getImageOfFaceRead tests`, () => {
           const destCtx = charCanvas.getContext("2d");
 
           getImageOfFaceRead(destCtx, ctx.canvas, face);
-          fs.writeFileSync(`test-outputs/${filePrefix}-face-isolated.png`, charCanvas.toBuffer());
-          fs.writeFileSync(`test-outputs/${filePrefix}-before-isolation.png`, canvas.toBuffer());
+          fs.writeFileSync(`test-outputs/${filePrefix}-${ face.errors.map( e => e.type ).join("--") }.png`, charCanvas.toBuffer());
+          fs.writeFileSync(`test-outputs/${filePrefix}-before-face-isolated.png`, canvas.toBuffer());
         }
 
-        // console.log(`processJsImageData ${bitmap.width}x${bitmap.height} time (ms)`, afterMs - beforeMs);
         diceKeyImageProcessor.delete();
         expect(result);
     });
