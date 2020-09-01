@@ -47,7 +47,7 @@ describe(`getImageOfFaceRead tests`, () => {
         ctx.putImageData(imageData, 0, 0);
         const facesRead = JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) as FaceRead[];
         const facesWithErrors = facesRead
-          .map( face => FaceRead.fromJson(face) )
+          .map( face => FaceRead.fromJsonObject(face) )
           .filter( faceRead => faceRead.errors.length > 0 );
 
         for (const face of facesWithErrors) {

@@ -107,7 +107,7 @@ const isFaceOrientationLetterTrbl = (c: any): c is FaceOrientationLetterTrbl =>
   ValidFaceOrientationLetterTrbl.has(c);
 export class InvalidFaceOrientationLettersTrblException extends Error {
   constructor(public orientationAsLowercaseLetterTRBL: any, {position}: {position?: number} = {}) {
-    super(`${orientationAsLowercaseLetterTRBL} is not a valid die oreintation${ position == null ? "" : ` at position ${position}`}.`)
+    super(`${orientationAsLowercaseLetterTRBL} is not a valid die orientation${ position == null ? "" : ` at position ${position}`}.`)
   }
 }
 export const FaceOrientationLetterTrbl = (
@@ -122,17 +122,17 @@ FaceOrientationLetterTrbl.isValid = isFaceOrientationLetterTrbl;
 FaceOrientationLetterTrbl.toClockwise90DegreeRotationsFromUpright = (faceOrientationLetterTrbl: FaceOrientationLetterTrbl): Clockwise90DegreeRotationsFromUpright =>
   ( ( 
     ( ( FaceOrientationLettersTrbl.indexOf(faceOrientationLetterTrbl) ) % 4 )
-    + 4) % 4 // ensure mod is positive even if using negtive rotations
+    + 4) % 4 // ensure mod is positive even if using negative rotations
   ) as Clockwise90DegreeRotationsFromUpright
 
 export type FaceOrientationLetterTrblOrUnknown = FaceOrientationLetterTrbl | "?";
 export const FaceOrientationLettersTrblOrUnknown = [...FaceOrientationLettersTrbl, "?"] as FaceOrientationLetterTrblOrUnknown[];
-export const ValidFaceOrientationLetterTrblOrUknown = new Set<string>(FaceOrientationLettersTrblOrUnknown);
+export const ValidFaceOrientationLetterTrblOrUnknown = new Set<string>(FaceOrientationLettersTrblOrUnknown);
 const isFaceOrientationLetterTrblOrUnknown = (c: any): c is FaceOrientationLetterTrblOrUnknown =>
-  ValidFaceOrientationLetterTrblOrUknown.has(c);
+  ValidFaceOrientationLetterTrblOrUnknown.has(c);
 export class InvalidFaceOrientationLettersTrblOrUnknownException extends Error {
   constructor(public orientationAsLowercaseLetterTRBL: any, {position}: {position?: number} = {}) {
-    super(`${orientationAsLowercaseLetterTRBL} is not a valid die oreintation${ position == null ? "" : ` at position ${position}`}.`)
+    super(`${orientationAsLowercaseLetterTRBL} is not a valid die orientation${ position == null ? "" : ` at position ${position}`}.`)
   }
 };
 export const FaceOrientationLetterTrblOrUnknown = (
@@ -151,7 +151,7 @@ FaceOrientationLetterTrblOrUnknown.rotate = (
 ) => (!isFaceOrientationLetterTrbl(faceOrientationLetterTrblOrUnknown)) ? '?' :
   FaceOrientationLettersTrbl[ ( (
       ( FaceOrientationLettersTrbl.indexOf(faceOrientationLetterTrblOrUnknown) + clockwise90DegreeRotations ) % 4 
-    ) + 4) % 4  // ensure mod is positive even if using negtive rotations
+    ) + 4) % 4  // ensure mod is positive even if using negative rotations
   ];
 
 
@@ -205,11 +205,11 @@ export interface FaceIdentifiers {
 
 /**
  * When an element is placed into a box, a single face (digit) is exposed and
- * it may be upright, facing right (one 90 degree turn from pright), upside-down
+ * it may be upright, facing right (one 90 degree turn from upright), upside-down
  * (two turns), or facing left (3 turns)
  */
 export interface FaceOrientation {
-  orientationAsLowercaseLetterTRBL: FaceOrientationLetterTrblOrUnknown;
+  orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrblOrUnknown;
 }
 export interface Face extends FaceIdentifiers, FaceOrientation {
 }

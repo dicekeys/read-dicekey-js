@@ -32,15 +32,15 @@ export class FaceHasTooManyErrorsException extends Error {
 export interface FaceReadJson {
 	readonly underline: UndoverlineJson | undefined;
 	readonly overline: UndoverlineJson | undefined;
-	readonly orientationAsLowercaseLetterTRBL: FaceOrientationLetterTrblOrUnknown;
+	readonly orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrblOrUnknown;
 	readonly ocrLetterCharsFromMostToLeastLikely: string;
 	readonly ocrDigitCharsFromMostToLeastLikely: string;
 	readonly center: Point;
 }
   
-  export const FaceReadJsonKeys = [
+export const FaceReadJsonKeys = [
 	"underline", "overline",
-	"orientationAsLowercaseLetterTRBL",
+	"orientationAsLowercaseLetterTrbl",
 	"ocrLetterCharsFromMostToLeastLikely", "ocrDigitCharsFromMostToLeastLikely",
 	"center"
   ] as const;
@@ -49,31 +49,31 @@ export interface FaceReadJson {
 		return testFaceReadJsonKeys;
 	})();
 
-	interface UndoverlineBitMismatch {
+interface UndoverlineBitMismatch {
 	type: 'undoverline-bit-mismatch';
 	location: "underline" | "overline";
 	hammingDistance: number;
-  }
-  interface UndoverlineMissing {
+}
+interface UndoverlineMissing {
 	type: 'undoverline-missing';
 	location: "underline" | "overline"
-  }
-  interface UndoverlineCharacterWasOcrsSecondChoice {
+}
+interface UndoverlineCharacterWasOcrsSecondChoice {
 	type: 'ocr-second-choice';
 	location: "letter" | "digit";
-  }
-  interface UndoverlineCharacterDidNotMatchOcrCharacter {
+}
+interface UndoverlineCharacterDidNotMatchOcrCharacter {
 	type: 'ocr-mismatch';
 	location: "letter" | "digit"
-  }
-  interface NoUndoverlineOrOverlineWithWhichToLocateFace {
+}
+interface NoUndoverlineOrOverlineWithWhichToLocateFace {
 	type: 'no-undoverline-or-overline-with-which-to-locate-face'
-  }
-  interface NoMajorityAgreement {
+}
+interface NoMajorityAgreement {
 	type: 'no-majority-agreement';
-  }
+}
 
-  export type FaceReadError =
+export type FaceReadError =
 	UndoverlineBitMismatch |
 	UndoverlineMissing |
 	UndoverlineCharacterWasOcrsSecondChoice |
@@ -82,7 +82,7 @@ export interface FaceReadJson {
 	NoUndoverlineOrOverlineWithWhichToLocateFace;  
 
 export class FaceRead implements Partial<Face> {
-
+	public readonly uniqueIdentifier: string;
   public readonly letter: FaceLetter | undefined;
 	public readonly digit: FaceDigit | undefined;
 	public readonly errors: FaceReadError[] = [];
@@ -91,15 +91,15 @@ export class FaceRead implements Partial<Face> {
   constructor(
     public readonly underline: Undoverline | undefined,
     public readonly overline: Undoverline | undefined,
-		public orientationAsLowercaseLetterTRBL: FaceOrientationLetterTrblOrUnknown,
+		public orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrblOrUnknown,
     public readonly ocrLetterCharsFromMostToLeastLikely: string,
     public readonly ocrDigitCharsFromMostToLeastLikely: string,
 		public readonly center: Point
   ) {
     const ocrLetterRead = ocrLetterCharsFromMostToLeastLikely[0] as FaceLetter | undefined;
 		const ocrDigitRead = ocrDigitCharsFromMostToLeastLikely[0] as FaceDigit | undefined;
-		if (orientationAsLowercaseLetterTRBL != null) {
-			this.clockwise90DegreeRotationsFromUpright = Clockwise90DegreeRotationsFromUpright(orientationAsLowercaseLetterTRBL)
+		if (orientationAsLowercaseLetterTrbl != null) {
+			this.clockwise90DegreeRotationsFromUpright = Clockwise90DegreeRotationsFromUpright(orientationAsLowercaseLetterTrbl)
 		} else {
 			this.clockwise90DegreeRotationsFromUpright = 0;
 		}
@@ -114,6 +114,13 @@ export class FaceRead implements Partial<Face> {
       overline == null ? undefined : overline.digit
     );
 
+		this.uniqueIdentifier =
+			ocrLetterCharsFromMostToLeastLikely.substr(2) +
+			ocrDigitCharsFromMostToLeastLikely.substr(2) + ':' +
+			(underline?.code?.toString() ?? "no-underline-code") + ':' +
+			(overline?.code?.toString() ?? "no-overline-code") + ':' +
+			center.x.toString() + ':' +
+			center.y.toString()
 		
 		/////
 		// Populate the errors field
@@ -145,7 +152,7 @@ export class FaceRead implements Partial<Face> {
 				} : {
 					type: "undoverline-bit-mismatch",
 					hammingDistance: hammingDistance(
-						underline.faceWithUnoverlineCodes && underline.faceWithUnoverlineCodes.overlineCode || 0,
+						underline.faceWithUndoverlineCodes && underline.faceWithUndoverlineCodes.overlineCode || 0,
 						overline.code
 					)
 				})
@@ -163,7 +170,7 @@ export class FaceRead implements Partial<Face> {
 				} : {
 					type: "undoverline-bit-mismatch",
 					hammingDistance: hammingDistance(
-						overline.faceWithUnoverlineCodes && overline.faceWithUnoverlineCodes.underlineCode || 0,
+						overline.faceWithUndoverlineCodes && overline.faceWithUndoverlineCodes.underlineCode || 0,
 						overline.code
 					)
 				})
@@ -181,24 +188,23 @@ export class FaceRead implements Partial<Face> {
 				type: "no-majority-agreement"
 			})
 		}
-
   }
 
   toFace = () : Face => {
     if (typeof this.letter === "undefined" || typeof this.digit === "undefined") {
       throw new FaceHasTooManyErrorsException(this);
     }
-    const {letter, digit, orientationAsLowercaseLetterTRBL} = this;
-    return {letter, digit, orientationAsLowercaseLetterTRBL};
+    const {letter, digit, orientationAsLowercaseLetterTrbl: orientationAsLowercaseLetterTRBL} = this;
+    return {letter, digit, orientationAsLowercaseLetterTrbl: orientationAsLowercaseLetterTRBL};
   }
 
-  static fromJson = (j: FaceReadJson): FaceRead => new FaceRead(
+  static fromJsonObject = (j: FaceReadJson): FaceRead => new FaceRead(
     Undoverline.fromJsonUnderlineObject(j.underline),
     Undoverline.fromJsonOverlineObject(j.overline),
-	  j.orientationAsLowercaseLetterTRBL,
+	  j.orientationAsLowercaseLetterTrbl,
     j.ocrLetterCharsFromMostToLeastLikely,
     j.ocrDigitCharsFromMostToLeastLikely,
 		j.center
-  );
+	);
 
 }

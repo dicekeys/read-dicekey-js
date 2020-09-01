@@ -51,14 +51,14 @@ export class Undoverline implements UndoverlineJson {
   public static fromJsonOverlineObject = (jsonObj: UndoverlineJson | undefined) =>
     jsonObj && Undoverline.fromJsonObject("overline", jsonObj);
 
-  public readonly faceWithUnoverlineCodes =
+  public readonly faceWithUndoverlineCodes =
     this.lineType === "underline" ?
       decodeUnderlineTable[this.code] :
       decodeOverlineTable[this.code];
 
   public readonly letter: FaceLetter | undefined =
-    this.faceWithUnoverlineCodes == null ? undefined : this.faceWithUnoverlineCodes.letter;
+    this.faceWithUndoverlineCodes == null ? undefined : this.faceWithUndoverlineCodes.letter;
 
   public readonly digit: FaceDigit | undefined =
-    this.faceWithUnoverlineCodes == null ? undefined : this.faceWithUnoverlineCodes.digit;
+    this.faceWithUndoverlineCodes == null ? undefined : this.faceWithUndoverlineCodes.digit;
 }
