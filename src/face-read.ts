@@ -207,4 +207,15 @@ export class FaceRead implements Partial<Face> {
 		j.center
 	);
 
+	static fromJson = (facesReadJson: string) : FaceRead[] | undefined => {
+		if (facesReadJson.length == 0) {
+			return undefined;
+		}
+		const facesReadObj = JSON.parse(facesReadJson) as (null | FaceReadJson[]);
+		if (facesReadObj == null || !Array.isArray(facesReadObj) || facesReadObj.length !== 25) {
+			return undefined;
+		}
+		return facesReadObj.map( FaceRead.fromJsonObject);
+	}
+
 }

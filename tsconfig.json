@@ -4,7 +4,7 @@
       "skipLibCheck": true,
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
-      "target": "esnext",
+      "target": "es2018",
       "declaration": true,
       "strict": true,                        /* Enable all strict type-checking options. */
       "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
