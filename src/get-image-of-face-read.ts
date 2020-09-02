@@ -90,7 +90,6 @@ var dieRenderingCtx: CanvasRenderingContext2D | undefined;
  * @returns True if successful, false if unable to find the die center/angle to read
  */
 export const getImageOfFaceRead = (
-  dstCtx: CanvasRenderingContext2D,
   srcImage: HTMLCanvasElement | ImageBitmap,
   faceRead: FaceRead,
   renderSize: number = 200
@@ -106,6 +105,6 @@ export const getImageOfFaceRead = (
     dieRenderingCtx = dieRenderingCanvas.getContext("2d")!;
   }
   const {width, height} = dieRenderingCanvas;
-  getImageOfFaceRead(dieRenderingCtx, srcImage, faceRead);
+  renderImageOfFaceRead(dieRenderingCtx, srcImage, faceRead);
   return dieRenderingCtx.getImageData(0, 0, width, height);
 }
