@@ -9,7 +9,7 @@ import * as fs from "fs";
 
 import Jimp from "jimp"
 import {
-  getImageOfFaceRead
+  renderImageOfFaceRead
 } from "./get-image-of-face-read";
 import {
   FaceRead
@@ -20,6 +20,9 @@ const testData: string[] = [
   "D2tS2tP2lN2lO2bC2bA2lX1tG1lY2rH2lT2tR1lU2rM1tB2lV2lE2bZ1bF2tI1bJ2rL2lK2bW2t.jpg",
 ]
 
+/**
+ * @jest-environment jsdom
+ */
 describe(`getImageOfFaceRead tests`, () => {
   for (const fileName of testData) {
     const filePrefix = fileName.split(".")[0];
@@ -65,7 +68,7 @@ describe(`getImageOfFaceRead tests`, () => {
           const charCanvas = createCanvas(200, 200);
           const destCtx = charCanvas.getContext("2d");
 
-          getImageOfFaceRead(destCtx, ctx.canvas, face);
+          renderImageOfFaceRead(destCtx, ctx.canvas, face);
           fs.writeFileSync(`test-outputs/${filePrefix}-${ face.errors.map( e => e.type ).join("--") }.png`, charCanvas.toBuffer());
           fs.writeFileSync(`test-outputs/${filePrefix}-before-face-isolated.png`, canvas.toBuffer());
         }

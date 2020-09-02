@@ -13,7 +13,7 @@ const angleOfLineInSignedRadians2f = ({start, end}: Line) =>
 	Math.atan2(end.y - start.y, end.x - start.x);
 
 /**
- * Isolate and copy single face among the 25 faces read in an image of a DiceKey.
+ * Render a single face from among the 25 faces read in an image of a DiceKey.
  * Used so that we can read images with bit errors and have the user error-check
  * them for us.
  * 
@@ -23,7 +23,7 @@ const angleOfLineInSignedRadians2f = ({start, end}: Line) =>
  * 
  * @returns True if successful, false if unable to find the die center/angle to read
  */
-export const getImageOfFaceRead = (
+export const renderImageOfFaceRead = (
   dstCtx: CanvasRenderingContext2D,
   srcImage: HTMLCanvasElement | ImageBitmap,
   faceRead: FaceRead
@@ -69,4 +69,43 @@ export const getImageOfFaceRead = (
     dstCtx.canvas.width / srcSize
   );
   return true;
+}
+
+
+
+
+var dieRenderingCanvas: HTMLCanvasElement | undefined;
+var dieRenderingCtx: CanvasRenderingContext2D | undefined;
+
+
+/**
+ * Get an ImageData object containing a single face among the 25 faces read in
+ * an image of a DiceKey. Used so that we can read images with bit errors and
+ * have the user error-check them for us.
+ * 
+ * @param dstCtx The rendering context of the canvas to write into
+ * @param srcImage The source image from which a DiceKey was read
+ * @param faceRead The face to grab an image of.
+ * 
+ * @returns True if successful, false if unable to find the die center/angle to read
+ */
+export const getImageOfFaceRead = (
+  dstCtx: CanvasRenderingContext2D,
+  srcImage: HTMLCanvasElement | ImageBitmap,
+  faceRead: FaceRead,
+  renderSize: number = 200
+): ImageData => {
+  if (
+    dieRenderingCtx == null || dieRenderingCtx == null ||
+    dieRenderingCanvas?.width !== renderSize || dieRenderingCanvas?.height !== renderSize
+  ) {
+    dieRenderingCanvas = document.createElement("canvas");
+    const dieRenderingSize: string = renderSize?.toString() ?? "200";
+    dieRenderingCanvas.setAttribute("width", dieRenderingSize);
+    dieRenderingCanvas.setAttribute("height", dieRenderingSize);
+    dieRenderingCtx = dieRenderingCanvas.getContext("2d")!;
+  }
+  const {width, height} = dieRenderingCanvas;
+  getImageOfFaceRead(dieRenderingCtx, srcImage, faceRead);
+  return dieRenderingCtx.getImageData(0, 0, width, height);
 }
