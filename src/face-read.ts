@@ -88,6 +88,10 @@ export class FaceRead implements Partial<Face> {
 	public readonly errors: FaceReadError[] = [];
 	public clockwise90DegreeRotationsFromUpright: Clockwise90DegreeRotationsFromUpright;
 
+	// Set if the user has validated that this face was read correctly,
+	// providing an additional form of error correction.
+	howValidatedByUser?: "user-confirmed" | "user-re-entered";
+
   constructor(
     public readonly underline: Undoverline | undefined,
     public readonly overline: Undoverline | undefined,
