@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v1
         with:
           node-version: 12
@@ -58,7 +60,8 @@ jobs:
           scope: '@dicekeys'
       - run: npm ci
         env:
-          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PAT}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_PAT}}        
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build --if-present
       - run: npm publish
         env:
