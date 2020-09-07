@@ -1,6 +1,5 @@
 import {
   FaceLetter, FaceDigit,
-	Clockwise90DegreeRotationsFromUpright,
 	FaceOrientationLetterTrblOrUnknown,
 	Face,
 } from "./face";
@@ -86,11 +85,11 @@ export class FaceRead implements Partial<Face> {
   public readonly letter: FaceLetter | undefined;
 	public readonly digit: FaceDigit | undefined;
 	public readonly errors: FaceReadError[] = [];
-	public clockwise90DegreeRotationsFromUpright: Clockwise90DegreeRotationsFromUpright;
+	// public clockwise90DegreeRotationsFromUpright: Clockwise90DegreeRotationsFromUpright;
 
 	// Set if the user has validated that this face was read correctly,
 	// providing an additional form of error correction.
-	howValidatedByUser?: "user-confirmed" | "user-re-entered";
+	userValidationOutcome?: "user-confirmed" | "user-re-entered" | "user-rejected";
 
   constructor(
     public readonly underline: Undoverline | undefined,
@@ -102,11 +101,6 @@ export class FaceRead implements Partial<Face> {
   ) {
     const ocrLetterRead = ocrLetterCharsFromMostToLeastLikely[0] as FaceLetter | undefined;
 		const ocrDigitRead = ocrDigitCharsFromMostToLeastLikely[0] as FaceDigit | undefined;
-		if (orientationAsLowercaseLetterTrbl != null) {
-			this.clockwise90DegreeRotationsFromUpright = Clockwise90DegreeRotationsFromUpright(orientationAsLowercaseLetterTrbl)
-		} else {
-			this.clockwise90DegreeRotationsFromUpright = 0;
-		}
 		this.letter = majorityOfThree<FaceLetter | undefined>(
       ocrLetterRead,
       underline == null ? undefined : underline.letter,
@@ -119,8 +113,8 @@ export class FaceRead implements Partial<Face> {
     );
 
 		this.uniqueIdentifier =
-			ocrLetterCharsFromMostToLeastLikely.substr(2) +
-			ocrDigitCharsFromMostToLeastLikely.substr(2) + ':' +
+			ocrLetterCharsFromMostToLeastLikely.substr(0, 2) +
+			ocrDigitCharsFromMostToLeastLikely.substr(0, 2) + ':' +
 			(underline?.code?.toString() ?? "no-underline-code") + ':' +
 			(overline?.code?.toString() ?? "no-overline-code") + ':' +
 			center.x.toString() + ':' +
@@ -129,7 +123,11 @@ export class FaceRead implements Partial<Face> {
 		/////
 		// Populate the errors field
 		/////
-		if (underline && overline && underline.letter === overline.letter && underline.digit === overline.digit) {
+		if (underline && overline &&
+				underline.letter != null && underline.digit != null &&
+				overline.letter != null && overline.digit != null &&
+				underline.letter === overline.letter && underline.digit === overline.digit
+		) {
 			// The underline and overline map to the same face
 			
 			// Check for OCR errors for the letter read
