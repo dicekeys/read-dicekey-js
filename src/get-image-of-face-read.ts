@@ -73,6 +73,8 @@ export const renderImageOfFaceRead = (
 
 
 
+var srcImageRenderingCanvas: HTMLCanvasElement | undefined;
+var srcImageRenderingCtx: CanvasRenderingContext2D | undefined;
 
 var dieRenderingCanvas: HTMLCanvasElement | undefined;
 var dieRenderingCtx: CanvasRenderingContext2D | undefined;
@@ -90,21 +92,32 @@ var dieRenderingCtx: CanvasRenderingContext2D | undefined;
  * @returns True if successful, false if unable to find the die center/angle to read
  */
 export const getImageOfFaceRead = (
-  srcImage: HTMLCanvasElement | ImageBitmap,
+  srcImage: HTMLCanvasElement | ImageBitmap | ImageData,
   faceRead: FaceRead,
   renderSize: number = 200
 ): ImageData => {
-  if (
-    dieRenderingCtx == null || dieRenderingCtx == null ||
-    dieRenderingCanvas?.width !== renderSize || dieRenderingCanvas?.height !== renderSize
-  ) {
+  if (dieRenderingCanvas == null || dieRenderingCtx == null) {
     dieRenderingCanvas = document.createElement("canvas");
+    dieRenderingCtx = dieRenderingCanvas.getContext("2d")!;
+  }
+  if (dieRenderingCanvas.width !== renderSize || dieRenderingCanvas.height !== renderSize) {
     const dieRenderingSize: string = renderSize?.toString() ?? "200";
     dieRenderingCanvas.setAttribute("width", dieRenderingSize);
     dieRenderingCanvas.setAttribute("height", dieRenderingSize);
-    dieRenderingCtx = dieRenderingCanvas.getContext("2d")!;
   }
-  const {width, height} = dieRenderingCanvas;
-  renderImageOfFaceRead(dieRenderingCtx, srcImage, faceRead);
+  if (srcImage instanceof ImageData) {
+    if (srcImageRenderingCanvas == null || srcImageRenderingCtx == null) {
+      srcImageRenderingCanvas = document.createElement("canvas");
+      srcImageRenderingCtx = srcImageRenderingCanvas.getContext("2d")!;
+    }
+    if (srcImageRenderingCanvas.width !== srcImage.width || srcImageRenderingCanvas.height !== srcImage.height) {
+      srcImageRenderingCanvas.setAttribute("width", srcImage.width.toString());
+      srcImageRenderingCanvas.setAttribute("height", srcImage.height.toString());  
+    }
+    renderImageOfFaceRead(dieRenderingCtx, srcImageRenderingCanvas, faceRead);
+  } else {
+    renderImageOfFaceRead(dieRenderingCtx, srcImage, faceRead);
+  }
+  const {width, height} = dieRenderingCanvas!;
   return dieRenderingCtx.getImageData(0, 0, width, height);
 }
