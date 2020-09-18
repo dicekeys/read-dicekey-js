@@ -1,6 +1,6 @@
 {
   "name": "@dicekeys/read-dicekey-js",
-  "version": "0.0.19",
+  "version": "0.0.21",
   "description": "DiceKeys image processor",
   "scope": "@dicekeys",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/dicekeys",
-    "access": "restricted"
+    "access": "public"
   },
   "files": [
     "/dist/",

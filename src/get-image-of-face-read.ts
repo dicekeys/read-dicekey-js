@@ -114,6 +114,7 @@ export const getImageOfFaceRead = (
       srcImageRenderingCanvas.setAttribute("width", srcImage.width.toString());
       srcImageRenderingCanvas.setAttribute("height", srcImage.height.toString());  
     }
+    srcImageRenderingCtx.putImageData(srcImage, 0, 0);
     renderImageOfFaceRead(dieRenderingCtx, srcImageRenderingCanvas, faceRead);
   } else {
     renderImageOfFaceRead(dieRenderingCtx, srcImage, faceRead);
