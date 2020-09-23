@@ -4,12 +4,9 @@ import {
 import {
   FaceLetter, FaceDigit
 } from "./face";
-
-
-export interface Point {
-	x: number;
-	y: number;
-}
+import {
+  Point
+} from "./drawing/point"
 
 export interface Line {
   readonly start: Point;

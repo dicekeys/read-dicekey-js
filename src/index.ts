@@ -1,8 +1,9 @@
 export * from "./dicekey-image-processor";
-
+export * from "./drawing";
 export * from "./face";
 export * from "./face-read";
 export * from "./undoverline";
 export * from "./undoverline-tables";
 export * from "./face-dimensions";
 export * from "./get-image-of-face-read";
+export * from "./render-faces-read";

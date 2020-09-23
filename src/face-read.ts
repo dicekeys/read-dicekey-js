@@ -6,8 +6,10 @@ import {
 import {
   Undoverline,
   UndoverlineJson,
-  Point
 } from "./undoverline";
+import {
+	Point
+} from "./drawing/point";
 import { hammingDistance } from "./bit-operations";
 
 /**

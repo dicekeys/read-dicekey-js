@@ -1,8 +1,15 @@
-import {DiceKeyImageProcessorModulePromise} from "./dicekey-image-processor"
+import {DiceKeyImageProcessorModulePromise} from "../dicekey-image-processor"
 var path = require('path');
 import * as fs from "fs";
+import {
+    createCanvas, createImageData
+} from "canvas";
 
 import Jimp from "jimp"
+import { FaceRead } from "face-read";
+import { renderFacesRead } from "../render-faces-read";
+
+const testDir = `../../cpp/read-dicekey/tests/test-lib-read-keysqr/img`
 
 test('processRGBAImage', async () => {
     // Uncomment this if you're having problems with CI not finding the directory
@@ -15,7 +22,7 @@ test('processRGBAImage', async () => {
     const image = await Jimp.read(
         path.resolve(
             __dirname,
-            '../cpp/read-dicekey/tests/test-lib-read-keysqr/img/B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg'
+            `${testDir}/B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg`
     ));
     const diceKeyImageProcessor = new (await DiceKeyImageProcessorModulePromise).DiceKeyImageProcessor();
     const {bitmap} = image;
@@ -32,7 +39,7 @@ test('processRGBAImageAndRenderOverlay', async () => {
     const image = await Jimp.read(
         path.resolve(
             __dirname,
-            '../cpp/read-dicekey/tests/test-lib-read-keysqr/img/B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg'
+            `${testDir}/B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg`
     ));
     const mod = await DiceKeyImageProcessorModulePromise;
     const diceKeyImageProcessor = new mod.DiceKeyImageProcessor();
@@ -65,7 +72,7 @@ test('processAndAugmentRGBAImage', async () => {
     const image = await Jimp.read(
         path.resolve(
             __dirname,
-            '../cpp/read-dicekey/tests/test-lib-read-keysqr/img/B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg'
+            `${testDir}/B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg`
     ));
     const mod = await DiceKeyImageProcessorModulePromise;
     const diceKeyImageProcessor = new mod.DiceKeyImageProcessor();
@@ -80,3 +87,40 @@ test('processAndAugmentRGBAImage', async () => {
     diceKeyImageProcessor.delete();
     expect(result);
 });
+
+
+for (const fileName of [
+    "B23X21K21Y63F53I50O11H12J40M13G10P40C60S33U23A21W62L60V42D33T32Z61N13E33R63.jpg",
+    "C22I12L11G51P31F53K22V40S13W53T31O50Z30B13M51E22J13H43U30A13D62N13R61X60Y41-faded.jpg"    
+]) {
+test(`Process and render overlay with Javascript ${fileName}`, async () => {
+    const image = await Jimp.read(
+        path.resolve(
+            __dirname,
+            `${testDir}/${fileName}`
+    ));
+    const mod = await DiceKeyImageProcessorModulePromise;
+    const diceKeyImageProcessor = new mod.DiceKeyImageProcessor();
+    const {bitmap} = image;
+    const {width, height, data} = bitmap;
+    const beforeMs = (new Date()).getTime();
+    const canvas = createCanvas(bitmap.width, bitmap.height);
+    const ctx = canvas.getContext("2d");
+
+    const imageData = createImageData(width, height);
+    imageData.data.set(data);
+    ctx.putImageData(imageData, 0, 0);
+    
+    const result = diceKeyImageProcessor.processRGBAImage(bitmap.width, bitmap.height, bitmap.data);
+    const facesReadJsonObj = JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) as FaceRead[] | undefined | null;
+    expect(facesReadJsonObj).not.toBeNull();
+    expect(facesReadJsonObj).not.toBeUndefined();
+    const facesRead = facesReadJsonObj!.map( faceReadJsonObj => FaceRead.fromJsonObject(faceReadJsonObj) );
+    renderFacesRead(ctx, facesRead ?? []);
+    fs.writeFileSync(`test-outputs/JavaScriptOverlay ${fileName.split(".")[0]}.png`, canvas.toBuffer());
+    const afterMs = (new Date()).getTime();
+    // console.log(`processJsImageData ${bitmap.width}x${bitmap.height} time (ms)`, afterMs - beforeMs);
+    diceKeyImageProcessor.delete();
+    expect(result);
+});
+}

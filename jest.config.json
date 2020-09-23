@@ -1,17 +1,19 @@
 {
-    "verbose": true,
-    "roots": [
-      "<rootDir>/src/"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.+(ts|tsx|js)",
-      "**/?(*.)+(spec|test).+(ts|tsx|js)"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
-    },
-    "moduleDirectories": ["node_modules", "src", "."],
-    "collectCoverage": true,
-    "coveragePathIgnorePatterns": ["/node_modules/", "/src/read-dicekey-js.*"],
-    "testEnvironment": "jest-environment-node"
-  }
+  "verbose": true,
+  "roots": [
+    "<rootDir>/src"
+  ],
+  "testMatch": [
+    "**/tests/**/*.+(ts|tsx|js)",
+    "**/?(*.)+(spec|test).+(ts|tsx|js)"
+  ],
+  "transform": {
+    "^.+\\.(ts|tsx)$": "ts-jest"
+  },
+  "moduleDirectories": ["node_modules", "src"],
+  "collectCoverage": true,
+  "coveragePathIgnorePatterns": [
+    "/node_modules/"
+  ],
+  "testEnvironment": "jest-environment-node"
+}

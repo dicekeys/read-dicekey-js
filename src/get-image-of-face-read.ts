@@ -6,7 +6,7 @@ import {
 } from "./face-read";
 import {
   drawRotatedAndScaledImage
-} from "./draw-rotated-and-scaled-image";
+} from "./drawing/draw-rotated-and-scaled-image";
 
 
 const angleOfLineInSignedRadians2f = ({start, end}: Line) =>
