@@ -23,6 +23,12 @@ export declare class DiceKeyImageProcessor {
     diceKeyReadJson: () => string;
     // .function("isFinished", &DiceKeyImageProcessor::isFinished)  }
     isFinished: () => boolean;
+    // .function("getFaceImage", &getFaceImage)
+    //inline emscripten::val getFaceImage(
+    //   DiceKeyImageProcessor& thisDiceKeyImageProcessor,
+    //   int faceIndex =
+    // )
+    getFaceImage: (faceIndex: number) => Uint8Array;
     // All embind-generated objects are given a delete() method to destruct and clean up memory
     delete: () => void;
 }

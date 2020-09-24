@@ -12,7 +12,7 @@ import {
   renderImageOfFaceRead
 } from "../get-image-of-face-read";
 import {
-  FaceRead
+  FaceRead, FaceReadJson
 } from "../face-read";
 
 const testData: string[] = [
@@ -50,30 +50,26 @@ describe(`getImageOfFaceRead tests`, () => {
         const imageData = createImageData(width, height);
         imageData.data.set(data);
         ctx.putImageData(imageData, 0, 0);
-        const facesRead = JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) as FaceRead[];
-        const facesWithErrors = facesRead
-          .map( face => FaceRead.fromJsonObject(face) )
-          .filter( faceRead => faceRead.errors.length > 0 );
+        const facesRead = (
+          JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) as FaceReadJson[]
+        ).map( face => FaceRead.fromJsonObject(face) )
 
-        for (const face of facesWithErrors) {
+        facesRead.forEach( (face, faceIndex) => {
+          if (face.errors && face.errors.length > 0) {      
+            const charCanvas = createCanvas(200, 200);
+            const destCtx = charCanvas.getContext("2d");
+            renderImageOfFaceRead(destCtx, ctx.canvas, face);
+            fs.writeFileSync(`test-outputs/${filePrefix}-${ face.errors.map( e => e.type ).join("--") }.png`, charCanvas.toBuffer());
+            fs.writeFileSync(`test-outputs/${filePrefix}-before-face-isolated.png`, canvas.toBuffer());
 
-          // // For debugging to identify the location of the center of the die we're testing
-          // ctx.strokeStyle = "blue";
-          // ctx.fillStyle = "blue";
-          // ctx.beginPath();
-          // ctx.arc(face.center.x, face.center.y, 10, 0, 2 * Math.PI);
-          // ctx.stroke();
-          // ctx.beginPath();
-          // ctx.arc(face.center.x, face.center.y, 3, 0, 2 * Math.PI);
-          // ctx.fill();
-
-          const charCanvas = createCanvas(200, 200);
-          const destCtx = charCanvas.getContext("2d");
-
-          renderImageOfFaceRead(destCtx, ctx.canvas, face);
-          fs.writeFileSync(`test-outputs/${filePrefix}-${ face.errors.map( e => e.type ).join("--") }.png`, charCanvas.toBuffer());
-          fs.writeFileSync(`test-outputs/${filePrefix}-before-face-isolated.png`, canvas.toBuffer());
+          const faceImageDataArray = diceKeyImageProcessor.getFaceImage(faceIndex);
+          const faceImageSize = Math.round(Math.sqrt((faceImageDataArray.length / 4)));
+          const faceImageData = createImageData(new Uint8ClampedArray(faceImageDataArray.buffer), faceImageSize);
+          const faceImageCanvas = createCanvas(faceImageData.width, faceImageData.height);
+          faceImageCanvas.getContext("2d")!.putImageData(faceImageData, 0, 0);
+          fs.writeFileSync(`test-outputs/${filePrefix}-${ faceIndex }.png`, faceImageCanvas.toBuffer());
         }
+      });
 
         diceKeyImageProcessor.delete();
         expect(result);

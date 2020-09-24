@@ -8,9 +8,13 @@ import {
   UndoverlineJson,
 } from "./undoverline";
 import {
+	angleOfLineInSignedRadians2f,
+	lineLength,
+	midpointOfLine,
 	Point
-} from "./drawing/point";
+} from "./drawing"
 import { hammingDistance } from "./bit-operations";
+import { FaceDimensionsFractional } from "face-dimensions";
 
 /**
  * Returns the majority value of a, b, c
@@ -220,6 +224,46 @@ export class FaceRead implements Partial<Face> {
 			return undefined;
 		}
 		return facesReadObj.map( FaceRead.fromJsonObject);
+	}
+
+	get undoverlines(): [] | [Undoverline] | [Undoverline, Undoverline] {
+		return [this.underline, this.overline]
+		.filter( u => u != null ) as [] | [Undoverline] | [Undoverline, Undoverline]
+	}
+
+	get inferredAngleInRadians(): number {
+		const NinetyDegreesAsRadians = Math.PI / 2;
+		const undoverlines = this.undoverlines;
+
+		const angleInRadians: number =
+			(undoverlines.length === 2) ?
+				(
+					angleOfLineInSignedRadians2f({
+						start: midpointOfLine(undoverlines[0].line), end: midpointOfLine(undoverlines[1].line)
+					}) +
+					NinetyDegreesAsRadians
+				) :
+			(undoverlines.length === 1) ?
+				angleOfLineInSignedRadians2f(undoverlines[0].line) :
+				0;
+		if (angleInRadians > Math.PI) {
+			return angleInRadians - 2 * Math.PI;
+		} else {
+			return angleInRadians;
+		}
+	}
+	
+	get inferredUndoverlineLength(): number{
+		const undoverlines = this.undoverlines;
+		return (undoverlines.length === 2) ?
+				( ( lineLength(undoverlines[0].line) + lineLength(undoverlines[1].line) ) / 2 ) :
+			(undoverlines.length === 1) ?
+				lineLength(undoverlines[0].line) :
+			0;
+	}
+
+	get inferredFaceSize(): number{
+		return this.inferredUndoverlineLength / FaceDimensionsFractional.undoverlineLength;
 	}
 
 }

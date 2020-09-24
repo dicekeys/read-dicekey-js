@@ -6,12 +6,11 @@ import {
 } from "./face";
 import {
   Point
-} from "./drawing/point"
+} from "./drawing/point";
+import {
+  Line
+} from "./drawing/line";
 
-export interface Line {
-  readonly start: Point;
-  readonly end: Point;
-}
 
 export interface UndoverlineJson {
   readonly line: Line;

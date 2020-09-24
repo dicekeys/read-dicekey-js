@@ -21,6 +21,13 @@ inline bool processRGBAImage (
 	);
 }
 
+inline emscripten::val getFaceImage(
+	DiceKeyImageProcessor& thisDiceKeyImageProcessor,
+	int faceIndex
+) {
+	return toJsUint8Array(thisDiceKeyImageProcessor.getImageOfFace(faceIndex));
+}
+
 inline bool processRGBAImageAndRenderOverlay(	
 	DiceKeyImageProcessor& thisDiceKeyImageProcessor,
 	int width,
@@ -71,6 +78,7 @@ EMSCRIPTEN_BINDINGS(DiceKeyImageProcessor) {
     .function("processRGBAImage", &processRGBAImage)
     .function("processRGBAImageAndRenderOverlay", &processRGBAImageAndRenderOverlay)
     .function("processAndAugmentRGBAImage", &processAndAugmentRGBAImage)
+		.function("getFaceImage", &getFaceImage)
     .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
     .function("isFinished", &DiceKeyImageProcessor::isFinished)
     ;
