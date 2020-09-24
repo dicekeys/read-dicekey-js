@@ -9,7 +9,7 @@ import {
 } from "./get-face-size-and-angle";
 import {
   drawRotatedRect
- } from "drawing/draw-rotated-rect";
+ } from "./drawing/draw-rotated-rect";
 import {
   createAngularCoordinateSystem
 } from "./drawing/create-angular-coordinate-system";

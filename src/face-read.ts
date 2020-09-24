@@ -14,7 +14,7 @@ import {
 	Point
 } from "./drawing"
 import { hammingDistance } from "./bit-operations";
-import { FaceDimensionsFractional } from "face-dimensions";
+import { FaceDimensionsFractional } from "./face-dimensions";
 
 /**
  * Returns the majority value of a, b, c

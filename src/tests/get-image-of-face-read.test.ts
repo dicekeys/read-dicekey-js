@@ -51,7 +51,7 @@ describe(`getImageOfFaceRead tests`, () => {
         imageData.data.set(data);
         ctx.putImageData(imageData, 0, 0);
         const facesRead = (
-          JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) as FaceReadJson[]
+          (JSON.parse(diceKeyImageProcessor.diceKeyReadJson()) ?? []) as FaceReadJson[]
         ).map( face => FaceRead.fromJsonObject(face) )
 
         facesRead.forEach( (face, faceIndex) => {
