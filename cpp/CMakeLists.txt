@@ -51,8 +51,8 @@ target_compile_options(${READ_DICEKEY_JS_PROJECT_NAME}
     -Werror
     "SHELL:-s MODULARIZE=1"
     "SHELL:-s ASSERTIONS=2"
-    "SHELL:-s DISABLE_EXCEPTION_CATCHING=2"
-    "SHELL:-s EXCEPTION_DEBUG=1"
+#    "SHELL:-s DISABLE_EXCEPTION_CATCHING=2"
+#    "SHELL:-s EXCEPTION_DEBUG=1"
     -O3
     -g4
     --bind
