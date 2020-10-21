@@ -4,17 +4,13 @@ import {
 import {
   FaceLetter, FaceDigit
 } from "./face";
+import {
+  Point
+} from "./drawing/point";
+import {
+  Line
+} from "./drawing/line";
 
-
-export interface Point {
-	x: number;
-	y: number;
-}
-
-export interface Line {
-  readonly start: Point;
-  readonly end: Point;
-}
 
 export interface UndoverlineJson {
   readonly line: Line;

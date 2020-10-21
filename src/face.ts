@@ -28,7 +28,7 @@ export class InvalidFaceLetterException extends Error {
 /**
  * Coerce a string to a FaceLetter, throwing an exception if the string is not a valid die letter.
  * @param letter The string which should contain an element letter
- * @param param1 Optional objected used to pass a position with a KeySqr for exception reporting
+ * @param param1 Optional objected used to pass a position with a DiceKey for exception reporting
  */
 export const FaceLetter = (
   letter: string,
@@ -170,8 +170,8 @@ export const faceRotationLetterToClockwiseAngle = (letter: string): number =>
 
 /**
  * Coerce a string or digit into an Clockwise90DegreeRotationsFromUpright
- * @param digit The number or string representing a rotation.
- * @param param1 Optional objected used to pass a position with a KeySqr for exception reporting
+ * @param digit The number (0-4) or string ('t','l','d','r') representing a rotation.  May not be '?'
+ * @param param1 Optional objected used to pass a position for exception reporting
  */
 export const Clockwise90DegreeRotationsFromUpright = (
   rotation: string | number,

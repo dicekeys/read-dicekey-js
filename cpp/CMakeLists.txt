@@ -51,8 +51,8 @@ target_compile_options(${READ_DICEKEY_JS_PROJECT_NAME}
     -Werror
     "SHELL:-s MODULARIZE=1"
     "SHELL:-s ASSERTIONS=2"
-    "SHELL:-s DISABLE_EXCEPTION_CATCHING=2"
-    "SHELL:-s EXCEPTION_DEBUG=1"
+#    "SHELL:-s DISABLE_EXCEPTION_CATCHING=2"
+#    "SHELL:-s EXCEPTION_DEBUG=1"
     -O3
     -g4
     --bind
@@ -82,24 +82,28 @@ target_link_options(
 #   "SHELL:-s USE_ES6_IMPORT_META=0"
 )
 
+# Ensure OpenCV is installed
+include("read-dicekey/extern/opencv.cmake")
+
+
 # See https://docs.opencv.org/4.1.1/d0/d76/tutorial_arm_crosscompile_with_cmake.html
 
 message("${READ_DICEKEY_JS_PROJECT_NAME}: Target OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
 target_include_directories( ${READ_DICEKEY_JS_PROJECT_NAME} PUBLIC
         $ENV{emsdk}/upstream/emscripten/system/include/
-        ${PROJECT_SOURCE_DIR}/lib-read-keysqr
+        ${PROJECT_SOURCE_DIR}/lib-read-dicekey
         ${OpenCV_INCLUDE_DIRS}
 )
-message("OPENCV_INCLUDE_DIRS AT ${OpenCV_INCLUDE_DIRS}")
+#message("OPENCV_INCLUDE_DIRS AT ${OpenCV_INCLUDE_DIRS}")
 message("EMSDK AT $ENV{emsdk}/upstream/emscripten/system/include/")
 
 
-# Link OpenCV and lib-keysqr so that they're both accessible as part of this add_library
+# Link OpenCV and lib-dicekey so that they're both accessible as part of this add_library
 # (public)
 
 target_link_libraries(${READ_DICEKEY_JS_PROJECT_NAME}
     PRIVATE
-    lib-read-keysqr
+    lib-read-dicekey
 )
 
 

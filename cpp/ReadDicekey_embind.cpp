@@ -1,6 +1,6 @@
 #include <emscripten/bind.h>
 #include "./binding-helpers.hpp"
-#include "./read-dicekey/lib-read-keysqr/read-keysqr.hpp"
+#include "./read-dicekey/lib-read-dicekey/read-dicekey.hpp"
 
 using namespace emscripten;
 
@@ -19,6 +19,13 @@ inline bool processRGBAImage (
 		height,
 		(uint32_t*) dataVector.data()
 	);
+}
+
+inline emscripten::val getFaceImage(
+	DiceKeyImageProcessor& thisDiceKeyImageProcessor,
+	int faceIndex
+) {
+	return toJsUint8Array(thisDiceKeyImageProcessor.getImageOfFace(faceIndex));
 }
 
 inline bool processRGBAImageAndRenderOverlay(	
@@ -71,7 +78,8 @@ EMSCRIPTEN_BINDINGS(DiceKeyImageProcessor) {
     .function("processRGBAImage", &processRGBAImage)
     .function("processRGBAImageAndRenderOverlay", &processRGBAImageAndRenderOverlay)
     .function("processAndAugmentRGBAImage", &processAndAugmentRGBAImage)
-    .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
+		.function("getFaceImage", &getFaceImage)
+    .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonDiceKeyRead)
     .function("isFinished", &DiceKeyImageProcessor::isFinished)
     ;
 }
