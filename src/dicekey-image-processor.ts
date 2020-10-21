@@ -19,7 +19,7 @@ export declare class DiceKeyImageProcessor {
     //    .function("renderAugmentationOverlay", &DiceKeyImageProcessor::renderAugmentationOverlay)
     processRGBAImageAndRenderOverlay: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => boolean;
     processAndAugmentRGBAImage: (width: number, height: number, data: Uint8ClampedArray | Uint8Array | Buffer) => boolean;
-        // .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonKeySqrRead)
+        // .function("diceKeyReadJson", &DiceKeyImageProcessor::jsonDiceKeyRead)
     diceKeyReadJson: () => string;
     // .function("isFinished", &DiceKeyImageProcessor::isFinished)  }
     isFinished: () => boolean;

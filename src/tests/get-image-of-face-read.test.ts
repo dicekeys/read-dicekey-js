@@ -20,7 +20,7 @@ const testData: string[] = [
   "D2tS2tP2lN2lO2bC2bA2lX1tG1lY2rH2lT2tR1lU2rM1tB2lV2lE2bZ1bF2tI1bJ2rL2lK2bW2t.jpg",
 ];
 
-const testDir = `../../cpp/read-dicekey/tests/test-lib-read-keysqr/img`;
+const testDir = `../../cpp/read-dicekey/tests/test-lib-read-dicekey/img`;
 
 /**
  * @jest-environment jsdom

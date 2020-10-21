@@ -9,14 +9,14 @@ import Jimp from "jimp"
 import { FaceRead } from "face-read";
 import { renderFacesRead } from "../render-faces-read";
 
-const testDir = `../../cpp/read-dicekey/tests/test-lib-read-keysqr/img`
+const testDir = `../../cpp/read-dicekey/tests/test-lib-read-dicekey/img`
 
 test('processRGBAImage', async () => {
     // Uncomment this if you're having problems with CI not finding the directory
     // in the submodule and want to see the dir layout before the CI failure...
-    // const pc = ["..", "cpp", "read-dicekey", "tests", "test-lib-read-keysqr", "img"];
+    // const pc = ["..", "cpp", "read-dicekey", "tests", "test-lib-read-dicekey", "img"];
     // [...Array(pc.length).keys()].forEach( (i) => {
-    //     const p = path.resolve( __dirname, pc.slice(0, i+1).join("/"));
+    //     const p = path.resolve( __dirname, pc.slice(0, i+1).join("/"));P
     //     console.log(p, JSON.stringify(fs.readdirSync(p), null, 2));
     // });
     const image = await Jimp.read(
