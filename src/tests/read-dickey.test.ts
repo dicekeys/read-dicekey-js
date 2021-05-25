@@ -47,6 +47,13 @@ test('processRGBAImageAndRenderOverlay', async () => {
     const beforeMs = (new Date()).getTime();
     const result = diceKeyImageProcessor.processRGBAImageAndRenderOverlay(bitmap.width, bitmap.height, bitmap.data);
     image.write("test-outputs/processRGBAImageAndRenderOverlay.png");
+    const json = diceKeyImageProcessor.diceKeyReadJson();
+    const facesRead = FaceRead.fromJson(json);
+    const diceKeyHrf = facesRead
+        ?.map( f => f.toFace() )
+        ?.map( ({letter, digit, orientationAsLowercaseLetterTrbl}) =>
+            `${letter}${digit}${orientationAsLowercaseLetterTrbl}` ).join("");
+    fs.writeFileSync(`test-outputs/${diceKeyHrf}.json`, json);
     const afterMs = (new Date()).getTime();
     diceKeyImageProcessor.delete();
     expect(result).toBe(true);
