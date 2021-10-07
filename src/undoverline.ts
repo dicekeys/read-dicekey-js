@@ -10,6 +10,7 @@ import {
 import {
   Line
 } from "./drawing/line";
+import { FaceWithUndoverlineCodes } from "index";
 
 
 export interface UndoverlineJson {
@@ -30,13 +31,26 @@ export const UndoverlineJsonKeys = ["line", "code"] as const;
 })
 
 export class Undoverline implements UndoverlineJson {
+  public readonly faceWithUndoverlineCodes: FaceWithUndoverlineCodes | undefined;
+  public readonly letter: FaceLetter | undefined;
+  public readonly digit: FaceDigit | undefined;
+
   constructor(
     public readonly lineType: "overline" | "underline",
     public readonly line: Line,
     public readonly code: number
-  ) {}
+  ) {
+    this.faceWithUndoverlineCodes = lineType === "underline" ?
+      decodeUnderlineTable[code] :
+      decodeOverlineTable[code];
 
-      
+    this.letter =
+      this.faceWithUndoverlineCodes == null ? undefined : this.faceWithUndoverlineCodes.letter;
+
+    this.digit =
+      this.faceWithUndoverlineCodes == null ? undefined : this.faceWithUndoverlineCodes.digit;
+  }
+
   public static fromJsonObject = (
     lineType: "overline" | "underline",
     {line, code}: UndoverlineJson
@@ -46,15 +60,4 @@ export class Undoverline implements UndoverlineJson {
     jsonObj && Undoverline.fromJsonObject("underline", jsonObj);
   public static fromJsonOverlineObject = (jsonObj: UndoverlineJson | undefined) =>
     jsonObj && Undoverline.fromJsonObject("overline", jsonObj);
-
-  public readonly faceWithUndoverlineCodes =
-    this.lineType === "underline" ?
-      decodeUnderlineTable[this.code] :
-      decodeOverlineTable[this.code];
-
-  public readonly letter: FaceLetter | undefined =
-    this.faceWithUndoverlineCodes == null ? undefined : this.faceWithUndoverlineCodes.letter;
-
-  public readonly digit: FaceDigit | undefined =
-    this.faceWithUndoverlineCodes == null ? undefined : this.faceWithUndoverlineCodes.digit;
 }
