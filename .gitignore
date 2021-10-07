@@ -110,3 +110,6 @@ dist
 src/CMakeCCompiler.cmake
 src/CMakeCXXCompiler.cmake
 src/CMakeSystem.cmake
+
+# MacOS
+.DS_Store
