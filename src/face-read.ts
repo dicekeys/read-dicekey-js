@@ -183,7 +183,7 @@ export class FaceRead implements Partial<Face> {
 					)
 				})
 			});
-		} else if (underline == null && underline == null) {
+		} else if (underline == null && overline == null) {
 			// If we've made it this far down the if/then/else block, it's possible
 			// that neither and underline or overline was read
 			this.errors.push({
