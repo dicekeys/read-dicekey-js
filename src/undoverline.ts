@@ -10,7 +10,7 @@ import {
 import {
   Line
 } from "./drawing/line";
-import { FaceWithUndoverlineCodes } from "index";
+import { FaceWithUndoverlineCodes } from "./undoverline-tables";
 
 
 export interface UndoverlineJson {
