@@ -1,6 +1,7 @@
 import {
-  FaceLetter, FaceDigit,
-	FaceOrientationLetterTrblOrUnknown,
+  FaceLetter,
+	FaceDigit,
+	FaceOrientationLetterTrbl,
 	Face,
 } from "./face";
 import {
@@ -15,7 +16,6 @@ import {
 } from "./drawing"
 import { hammingDistance } from "./bit-operations";
 import { FaceDimensionsFractional } from "./face-dimensions";
-import { FaceOrientationLetterTrbl } from "index";
 
 /**
  * Returns the majority value of a, b, c
