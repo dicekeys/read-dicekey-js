@@ -209,7 +209,7 @@ export interface FaceIdentifiers {
  * (two turns), or facing left (3 turns)
  */
 export interface FaceOrientation {
-  orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrblOrUnknown;
+  orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrbl;
 }
 export interface Face extends FaceIdentifiers, FaceOrientation {
 }

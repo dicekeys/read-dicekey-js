@@ -8,6 +8,8 @@ import {
   FaceDimensionsFractional
 } from "./face-dimensions";
 
+type TupleOfOneOrTwo<T> = [T] | [T, T]
+
 /**
  * Given a FaceRead record, calculate the size of the face image in pixels and the angle of the die
  * by inspecting the underlines and overlines.
@@ -21,21 +23,19 @@ export const getFaceSizeAndAngle = (faceRead: FaceRead): {faceSizeInPixels: numb
     underline,
     overline
   } = faceRead;
-  const undoverlineData = (
-    // get the set of 0-2 undoverlines that are not null
-    [underline, overline].filter( u => u != null ) as Undoverline[]
-  ).map( ({line}) => ({
-    lineLength: Math.sqrt( Math.pow(line.end.x - line.start.x, 2) + Math.pow(line.end.y - line.start.y, 2) ),
-    angleInRadians: Math.atan2(line.end.y - line.start.y, line.end.x - line.start.x)
-  }));
-  if (undoverlineData.length == 0) {
+  const undoverlines = [underline, overline].filter( u => u != null ) as Undoverline[];
+  if (undoverlines.length == 0) {
     return undefined;
   }
-  const undoverlineLength = undoverlineData.reduce( (r, {lineLength}) => r + lineLength, 0) / undoverlineData.length;
+  const lineLengths = undoverlines.map( ({line}) => Math.sqrt( Math.pow(line.end.x - line.start.x, 2) + Math.pow(line.end.y - line.start.y, 2) )) as TupleOfOneOrTwo<number>;
+  const anglesInRadians = undoverlines.map( ({line}) => Math.atan2(line.end.y - line.start.y, line.end.x - line.start.x)) as TupleOfOneOrTwo<number>;
+
+
+  const undoverlineLength = lineLengths.reduce( (r, lineLength) => r + lineLength, 0) / lineLengths.length;
   const faceSizeInPixels = undoverlineLength / FaceDimensionsFractional.undoverlineLength;
-  const angleInRadians = (undoverlineData.length < 2 || 
-    Math.abs(undoverlineData[0].angleInRadians - undoverlineData[1].angleInRadians) > Math.PI
-  ) ? undoverlineData[0].angleInRadians :
-    (undoverlineData[0].angleInRadians + undoverlineData[1].angleInRadians) / 2;
+  const [angleInRadians0, angleInRadians1] = anglesInRadians;
+  const angleInRadians = (angleInRadians1 == null || Math.abs(angleInRadians0 - angleInRadians1) > Math.PI) ?
+    angleInRadians0 :
+    (angleInRadians0 + angleInRadians1) / 2;
   return {faceSizeInPixels, angleInRadians};
 }
