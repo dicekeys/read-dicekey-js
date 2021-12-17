@@ -23,7 +23,7 @@ export const drawRotatedRect = (ctx: CanvasRenderingContext2D, center: Point, xS
     ] as const
   ).map( ([xDir, yDir]) => coordinateSystemAtCenterOfRectangle.pointAtAsTuple({x: halfXSize * xDir, y: halfYSize * yDir}) )
   // Start at the last point
-  ctx.moveTo(...points[3])
+  ctx.moveTo(...points[3]!)
   ctx.beginPath();
   // Draw a line around the rectangle starting from  point 3
   // to point 0, then to 1, then 2, then back to 3.

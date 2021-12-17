@@ -15,6 +15,7 @@ import {
 } from "./drawing"
 import { hammingDistance } from "./bit-operations";
 import { FaceDimensionsFractional } from "./face-dimensions";
+import { FaceOrientationLetterTrbl } from "index";
 
 /**
  * Returns the majority value of a, b, c
@@ -37,7 +38,7 @@ export class FaceHasTooManyErrorsException extends Error {
 export interface FaceReadJson {
 	readonly underline: UndoverlineJson | undefined;
 	readonly overline: UndoverlineJson | undefined;
-	readonly orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrblOrUnknown;
+	readonly orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrbl;
 	readonly ocrLetterCharsFromMostToLeastLikely: string;
 	readonly ocrDigitCharsFromMostToLeastLikely: string;
 	readonly center: Point;
@@ -100,7 +101,7 @@ export class FaceRead implements Partial<Face> {
   constructor(
     public readonly underline: Undoverline | undefined,
     public readonly overline: Undoverline | undefined,
-		public orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrblOrUnknown,
+		public orientationAsLowercaseLetterTrbl: FaceOrientationLetterTrbl,
     public readonly ocrLetterCharsFromMostToLeastLikely: string,
     public readonly ocrDigitCharsFromMostToLeastLikely: string,
 		public readonly center: Point
@@ -199,11 +200,11 @@ export class FaceRead implements Partial<Face> {
   }
 
   toFace = () : Face => {
-    if (typeof this.letter === "undefined" || typeof this.digit === "undefined") {
+    if (this.letter == null || this.digit == null || this.orientationAsLowercaseLetterTrbl == null) {
       throw new FaceHasTooManyErrorsException(this);
     }
-    const {letter, digit, orientationAsLowercaseLetterTrbl: orientationAsLowercaseLetterTRBL} = this;
-    return {letter, digit, orientationAsLowercaseLetterTrbl: orientationAsLowercaseLetterTRBL};
+    const {letter, digit, orientationAsLowercaseLetterTrbl} = this;
+    return {letter, digit, orientationAsLowercaseLetterTrbl};
   }
 
   static fromJsonObject = (j: FaceReadJson): FaceRead => new FaceRead(

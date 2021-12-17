@@ -58,7 +58,7 @@ export const renderFaceRead = (ctx: CanvasRenderingContext2D, faceRead: FaceRead
   ctx.fillStyle = ctx.strokeStyle =
     (!hasErrors) ?
       colorIndicatingCorrectness :
-    (errors.length == 1 && errors[0].type === "undoverline-bit-mismatch" && errors[0].hammingDistance <= 2) ?
+    (errors.length == 1 && errors[0] != null && errors[0].type === "undoverline-bit-mismatch" && errors[0].hammingDistance <= 2) ?
       colorIndicatingSmallError :
       colorIndicatingLargeError;
 
@@ -68,8 +68,8 @@ export const renderFaceRead = (ctx: CanvasRenderingContext2D, faceRead: FaceRead
     ctx.stroke();
   }
 
-  const underlineError = (errors && errors.length > 0 && errors[0].type === "undoverline-bit-mismatch" && errors[0].location === "underline");
-  const overlineError = (errors && errors.length > 0 && errors[0].type === "undoverline-bit-mismatch" && errors[0].location === "overline");
+  const underlineError = (errors && errors.length > 0 && errors[0] != null && errors[0].type === "undoverline-bit-mismatch" && errors[0].location === "underline");
+  const overlineError = (errors && errors.length > 0 && errors[0] != null && errors[0].type === "undoverline-bit-mismatch" && errors[0].location === "overline");
 
   if (underline) {
     const underlineCenter = coordinateSystemFromCenterOfDie.pointAtAsXy({x: 0, y: centerOfUndoverlineToCenterOfFace});

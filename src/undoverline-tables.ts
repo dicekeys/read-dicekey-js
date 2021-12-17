@@ -955,7 +955,7 @@ export const decodeOverlineTable: (FaceWithUndoverlineCodes | undefined)[] = dec
 
 export function getUndoverlineCodes(face: FaceIdentifiers): UndoverlineCodes {
   const letterIndexTimesSixPlusDigitIndex = (FaceLetters.indexOf(face.letter) * 6) + (parseInt(face.digit) -1);
-  return letterIndexTimesSixPlusDigitIndexFaceWithUndoverlineCodes[letterIndexTimesSixPlusDigitIndex];
+  return letterIndexTimesSixPlusDigitIndexFaceWithUndoverlineCodes[letterIndexTimesSixPlusDigitIndex]!;
 }
 
 export function addUndoverlineCodes<T extends FaceIdentifiers>(face: T): T & UndoverlineCodes {

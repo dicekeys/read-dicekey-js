@@ -6,6 +6,8 @@
       "allowSyntheticDefaultImports": true,
       "target": "es2018",
       "declaration": true,
+    // Because the DiceKeys team likes things really, really strict,
+      "noUncheckedIndexedAccess": true,
       "strict": true,                        /* Enable all strict type-checking options. */
       "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
       "strictNullChecks": true,              /* Enable strict null checks. */
